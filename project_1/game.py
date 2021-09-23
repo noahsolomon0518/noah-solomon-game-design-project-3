@@ -10,6 +10,8 @@ Bugs:
     1. Game slows down a bit after a while. Not sure why since all sprites should be deleted when off screen
     2. Gui glitches out after health resets
 
+
+Used documentation provided on arcade website. 
 """
 
 import arcade
