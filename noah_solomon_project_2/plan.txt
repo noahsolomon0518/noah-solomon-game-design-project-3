@@ -1,0 +1,44 @@
+Tower defence
+
+Game
+
+    Player starts with amount of money and buys towers to defend base. Player starts on stage 1, map 1 which
+    should be easiest. Goal is to prevent enemies from reaching base. Progress through all stages to get to 
+    next map. 
+
+
+    game.py module is brain behind game. 
+        Functions:
+            projectile_enemy_collisions() - Gets all of collisions and applys collision function to projectiles and enemies
+
+Enemies
+    enemy.py module controls logic behind enemies
+        Global Variables:
+            ENEMY_PATH_CONFIG - sets up the cordinates of the enemies path per map
+
+
+    Abstract Enemy class
+        Variables:
+            health - how much net damage can be applied before dying
+            speed - pixels per second that it travels
+            destination - Where enemy is trying to get to
+            direction_vector - can be up = (0,1) down = (0,-1) right = (1,0) left = (-1,0)
+            projectiles_hit_by - spritelist of all the projectiles hit by
+
+
+        Class Variables
+            WALK_RIGHT_ANIMATION_SPRITES - Walk right textures
+            WALK_LEFT_ANIMATION_SPRITES - Walk left textures
+            WALK_UP_ANIMATION_SPRITES - Walk up textures
+            WALK_DOWN_ANIMATION_SPRITES - Walk down textures
+            START_HEALTH - starting health of enemy
+            START_SPEED - starting speed of enemy
+        
+        Functions:
+            on_collision_with_projectile(projectile) - can add logic to what happens when enemy hit by certain projectiles
+            move() - moves in direction of direction_vector
+            set_direction_vector() - if enemy reaches destination set next destination and new direction vector
+            on_collision_with_spritelist(list)
+            on_death() - controls what happens when enemy dies
+
+
