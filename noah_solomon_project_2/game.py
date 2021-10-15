@@ -2,7 +2,8 @@ from math import e
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.enemies import Bear, Enemy, Mushrooms, Toad
 from sprites.towers import *
-
+from levels import *
+from arcade.gui import UIManager
 
 import arcade
 
@@ -16,7 +17,7 @@ class MyGame(arcade.Window):
     """
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 650
-    SCREEN_TITLE = "Platformer"
+    SCREEN_TITLE = "Tower Defence"
 
     def __init__(self):
 
@@ -24,9 +25,16 @@ class MyGame(arcade.Window):
         self.enemy_list = None
         self.projectile_list = None
         self.tower_list = None
+        self.health = 59
+        self.money = 200
+        self.stage = 5
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
+
     def setup(self):
+        self.manager = UIManager()
+        self.manager.enable()
+        self.manager.add(InformationBox(self))
         self.enemy_list = SpriteList()
         self.projectile_list = SpriteList()
         self.tower_list = SpriteList()
@@ -36,9 +44,9 @@ class MyGame(arcade.Window):
         turret = PierceTurret(self)
         turret.center_x = 400
         turret.center_y = 300
-        self.enemy_list.append(Bear([(0,32), (500,50), (500,500)]))
-        self.enemy_list.append(Mushrooms([(0,0), (500,50), (500,500)]))
-        self.enemy_list.append(Toad([(60,4), (500,50), (500,500)]))
+        self.enemy_list.append(Bear(self, [(0,32), (500,50), (500,500)]))
+        self.enemy_list.append(Mushrooms(self, [(0,0), (500,50), (500,500)]))
+        self.enemy_list.append(Toad(self, [(60,4), (500,50), (500,500)]))
    
         self.tower_list.append(turret)
 
@@ -51,6 +59,7 @@ class MyGame(arcade.Window):
         self.gun_list.draw()
         self.enemy_list.draw()
         self.projectile_list.draw()
+        draw_information(self)
 
 
 
@@ -61,7 +70,6 @@ class MyGame(arcade.Window):
         self.enemy_list.on_update()
         self.projectile_list.on_update()
         self.handle_enemy_projectile_collisions()
-
         return super().on_update(delta_time)
 
 
@@ -71,6 +79,7 @@ class MyGame(arcade.Window):
             enemy: Enemy
             projectiles_collided = enemy_projectile_collisions[i]
             for projectile in projectiles_collided:
+                enemy.kill()
                 enemy.on_collision_with_projectile(projectile)
 
 

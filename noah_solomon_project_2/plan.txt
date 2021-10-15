@@ -42,3 +42,47 @@ Enemies
             on_death() - controls what happens when enemy dies
 
 
+Levels
+
+    The scene module contains the specific implementations of scenes. The scenes control the actual tower defences
+    game. Its responsibilities are:
+        Load specific tile map
+        Create GUI for various actons:
+            Buy tower
+            Information - money, wave, health
+            Pause/quit button
+        Spawn enemies
+        Allow for buying towers
+
+    Classes:
+        Level(arcade.Scene):
+            Class Variables:
+                ENEMY_PATH - the path that all enemies will travel
+                TILEMAP - tilemap that is to be used
+                STARTING_MONEY - amount of money that player starts with
+                SPAWN_SPEED - time interval of enemy spawning
+                ENEMY_SET - ordered enemy set that is to be spawned split up by stage
+
+            Instance variables:
+                health - health that player has before loses
+                stage - stage that player is on
+                enemy_ind - index of enemy that currently on in stage
+
+
+
+            Functions:
+                on_draw() - draws everything
+                draw_gui() - draws GUI
+                spawn_next_wave() - spawns the next wave of enemies
+                spawn_next_enemy() - spawns next enemy in stage. Is sceduled
+
+    GUI Classes:
+        BuyPanel - bottom panel that holds all the towers that can be bought
+        BuyTowerButton - button that allows player to buy tower. Has picture of tower and price
+        QuitButton - button to quit
+        InformationBox - contains values for money, stage and health
+        
+
+
+
+

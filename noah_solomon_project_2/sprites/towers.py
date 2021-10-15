@@ -1,7 +1,9 @@
+from typing import Union
 from arcade import Sprite
 import arcade
 from arcade import Window
 from math import cos, sin, sqrt
+from arcade.scene import Scene
 
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.config import UPGRADES
@@ -21,22 +23,22 @@ class Tower(Sprite):
     COST = None
     START_RANGE = None
 
-    def __init__(self, game: Window, filename: str = None, range: int = None, **kwargs):
-        self.game = game
+    def __init__(self, parent: Union[Window, Scene], filename: str = None, range: int = None, **kwargs):
+        self.parent = parent
         self.attacking = False
         self.upgrade_stage = 0
         self.range = range or self.__class__.START_RANGE
         self.enemies_in_range = None
         super().__init__(filename=filename, **kwargs)
         self.gun = Sprite("assets/towers/turret_gun.png", center_x=self.center_x, center_y=self.center_y)
-        self.game.gun_list.append(self.gun)
+        self.parent.gun_list.append(self.gun)
         
 
 
     def detect_enemies(self):
         """Returns all enemies from enemy list that are within range."""
         self.enemies_in_range = [
-            sprite for sprite in self.game.enemy_list 
+            sprite for sprite in self.parent.enemy_list 
             if euclidean_distance(self, sprite) <= self.range
         ]
         if(self.enemies_in_range):
@@ -86,7 +88,7 @@ class Turret(Tower):
     START_BULLET_ACCURACY = None
 
 
-    def __init__(self, game: Window, **kwargs):
+    def __init__(self, parent: Union[Window, Scene], **kwargs):
 
         self.speed = self.__class__.START_SPEED
         self.bullet = self.__class__.START_BULLET
@@ -94,11 +96,11 @@ class Turret(Tower):
         self.bullet_speed = self.__class__.START_BULLET_SPEED
         self.bullet_accuracy = self.__class__.START_BULLET_ACCURACY
 
-        super().__init__(game = game, range = self.__class__.START_RANGE, filename = self.__class__.FILENAME, **kwargs)
+        super().__init__(parent = parent, range = self.__class__.START_RANGE, filename = self.__class__.FILENAME, **kwargs)
         
     
     def attack_enemy(self, dt):
-        self.game.projectile_list.append(Bullet(self.game, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, center_x = self.center_x, center_y = self.center_y))
+        self.parent.projectile_list.append(Bullet(self.parent, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, center_x = self.center_x, center_y = self.center_y))
         
 
     def on_update(self, delta_time):
@@ -150,5 +152,5 @@ class PierceTurret(Turret):
 
     def attack_enemy(self, dt):
         """Creates instance of PierceBullet"""
-        self.game.projectile_list.append(PiercingBullet(self.game, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_PIERCE, center_x = self.center_x, center_y = self.center_y))
+        self.parent.projectile_list.append(PiercingBullet(self.parent, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_PIERCE, center_x = self.center_x, center_y = self.center_y))
         

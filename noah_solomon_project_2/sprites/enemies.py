@@ -42,7 +42,7 @@ class Enemy(AnimatedTimeBasedSprite):
      START_SPEED = None
      START_DAMAGE = None
 
-     def __init__(self, destinations: List[List], **kwargs):
+     def __init__(self, parent, destinations: List[List], **kwargs):
          super().__init__(**kwargs)
          
          self.frames = self.__class__.WALK_ANIMATION
