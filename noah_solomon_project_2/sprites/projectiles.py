@@ -45,9 +45,7 @@ class Projectile(Sprite):
     def on_update(self, delta_time: float = 1 / 60):
         self.move_to_target()
         self.delete_if_off_screen()
-        collisions =self.collides_with_list(self.game.enemy_list)
-        if(collisions):
-            self.on_enemy_collision(collisions)
+   
 
     def delete_if_off_screen(self):
         """Remove from memory if off screen"""

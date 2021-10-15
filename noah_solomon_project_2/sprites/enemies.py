@@ -2,7 +2,8 @@ from typing import List
 from arcade import load_texture, AnimationKeyframe
 from enum import Enum, auto
 from math import sqrt
-from arcade.sprite import Sprite
+import arcade
+from arcade.sprite import AnimatedTimeBasedSprite, Sprite
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.projectiles import Projectile, Bullet
 
@@ -26,26 +27,25 @@ ENEMY_PATH_CONFIG = {
      ]
 }
 
-def extract_textures(name, x_ind_1, x_ind_2, y_ind_1, sprite_size = 16, duration = 100):
+def extract_textures(name, col_start, col_end, row, sprite_size = 16, duration = 100):
      """Used to partition out animation key frames"""
      return [
-          AnimationKeyframe(i, load_texture(name+"_16x16.png", i*sprite_size, y_ind_1*sprite_size, sprite_size, sprite_size)) for i in range(x_ind_1, x_ind_2+1)
+          AnimationKeyframe(i, duration, load_texture("assets/enemies/"+ name+ "_16x16.png", i*sprite_size, row*sprite_size, sprite_size, sprite_size)) for i in range(col_start, col_end+1)
      ]
 
 
      
-class Enemy(Sprite):
+class Enemy(AnimatedTimeBasedSprite):
      """Enemy abstract class"""
-     WALK_RIGHT_ANIMATION_SPRITES = None
-     WALK_LEFT_ANIMATION_SPRITES = None
-     WALK_UP_ANIMATION_SPRITES = None
-     WALK_DOWN_ANIMATION_SPRITES = None
+     WALK_ANIMATION = None
      START_HEALTH = None
      START_SPEED = None
      START_DAMAGE = None
 
      def __init__(self, destinations: List[List], **kwargs):
          super().__init__(**kwargs)
+         
+         self.frames = self.__class__.WALK_ANIMATION
          self.center_x = destinations[0][0]
          self.center_y = destinations[0][1]
          self.health = self.__class__.START_HEALTH
@@ -79,8 +79,10 @@ class Enemy(Sprite):
      def on_collision_with_projectile(self, projectile: Projectile):
           """Controls what happens when coliides with specific projectile. Collision handled through game. Can only be hit by projectile once"""
           if(projectile not in self.projectiles_hit_by):
+
                self.projectiles_hit_by.append(projectile)
                projectile.on_enemy_collision(self)
+
                
 
 
@@ -95,6 +97,7 @@ class Enemy(Sprite):
      def on_update(self, delta_time: float = 1 / 60):
           """What happens after enemy is spawned"""
           self.move()
+          self.update_animation()
           if(self.health<=0):
                self.on_death()
           
@@ -103,10 +106,20 @@ class Enemy(Sprite):
 
 
 class Bear(Enemy):
-     WALK_RIGHT_ANIMATION_SPRITES = None
-     WALK_LEFT_ANIMATION_SPRITES = None
-     WALK_UP_ANIMATION_SPRITES = None
-     WALK_DOWN_ANIMATION_SPRITES = None
-     START_HEALTH = 50
+     WALK_ANIMATION = extract_textures("Bear", 5, 8, 1)
+     START_HEALTH = 500
+     START_SPEED = 1
+     START_DAMAGE = 30
+
+
+class Toad(Enemy):
+     WALK_ANIMATION = extract_textures("Toad", 5, 8, 1)
+     START_HEALTH = 500
+     START_SPEED = 1
+     START_DAMAGE = 30
+
+class Mushrooms(Enemy):
+     WALK_ANIMATION = extract_textures("Mushrooms", 5, 8, 1)
+     START_HEALTH = 500
      START_SPEED = 1
      START_DAMAGE = 30

@@ -1,6 +1,6 @@
 from math import e
 from arcade.sprite_list.sprite_list import SpriteList
-from sprites.enemies import Bear, Enemy
+from sprites.enemies import Bear, Enemy, Mushrooms, Toad
 from sprites.towers import *
 
 
@@ -33,11 +33,13 @@ class MyGame(arcade.Window):
         self.gun_list = SpriteList()
 
 
-        turret = SimpleTurret(self)
+        turret = PierceTurret(self)
         turret.center_x = 400
         turret.center_y = 300
-        self.enemy_list.append(Bear([(0,0), (500,50), (500,500)], filename = "assets/enemies/test_enemy.png"))
-
+        self.enemy_list.append(Bear([(0,32), (500,50), (500,500)]))
+        self.enemy_list.append(Mushrooms([(0,0), (500,50), (500,500)]))
+        self.enemy_list.append(Toad([(60,4), (500,50), (500,500)]))
+   
         self.tower_list.append(turret)
 
 
@@ -58,7 +60,7 @@ class MyGame(arcade.Window):
         self.tower_list.on_update()
         self.enemy_list.on_update()
         self.projectile_list.on_update()
-
+        self.handle_enemy_projectile_collisions()
 
         return super().on_update(delta_time)
 

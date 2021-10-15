@@ -5,7 +5,7 @@ from math import cos, sin, sqrt
 
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.config import UPGRADES
-from sprites.projectiles import Bullet
+from sprites.projectiles import Bullet, PiercingBullet
 import math
 
 
@@ -135,3 +135,20 @@ class SniperTurret(Turret):
     START_BULLET_DAMAGE = 100
     START_BULLET_SPEED = 10
     START_BULLET_ACCURACY = 2
+
+
+class PierceTurret(Turret):
+    COST = 100
+    FILENAME = "assets/towers/pierce_turret.png"
+    START_RANGE = 1000
+    START_SPEED = 1
+    START_BULLET = Bullet
+    START_BULLET_DAMAGE = 20
+    START_BULLET_SPEED = 10
+    START_BULLET_ACCURACY = 2
+    START_BULLET_PIERCE = 3
+
+    def attack_enemy(self, dt):
+        """Creates instance of PierceBullet"""
+        self.game.projectile_list.append(PiercingBullet(self.game, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_PIERCE, center_x = self.center_x, center_y = self.center_y))
+        
