@@ -5,16 +5,51 @@ from arcade import color
 from arcade.application import Window
 from arcade.gui import *
 from enum import Enum
+from numpy.random import choice
 from arcade.scene import Scene
 from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE
-from pyglet.libs.win32.constants import SPI_GETACCESSTIMEOUT
-
+from functools import partial
 from sprites.towers import PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 
 class BuyTowerPanelsStates(Enum):
     IDLE = 0
     BUYING = 1
 
+class Spawner:
+    """Controls spawning of enemies based on level_enemy_spawns config that is passed to it. This is held in Level"""
+    def __init__(self, level, level_enemy_spawns, level_enemy_path):
+        self.level = level
+        self.level_enemy_path = level_enemy_path
+        self.level_enemy_spawns = level_enemy_spawns
+        self.stage = 0
+        self.part = 0
+        self.amount = 0
+
+    def spawn_next_wave(self):
+        arcade.schedule(self.spawn_next_enemy, interval = self.level_enemy_spawns[self.stage][self.part]["interval"])
+
+
+    def spawn_next_enemy(self, dt = None):
+        """Spawns enemies according to stage and part given"""
+        enemy_choices = self.level_enemy_spawns[self.stage][self.part]["enemies"]
+        probabilities = self.level_enemy_spawns[self.stage][self.part]["probabilities"]
+        self.level.enemy_list.append(choice(enemy_choices, p = probabilities)(self.level, self.level_enemy_path))
+        self.amount += 1
+        
+        if(self.amount>=self.level_enemy_spawns[self.stage][self.part]["amount"]):
+            if(self.part >= len(self.level_enemy_spawns[self.stage]) - 1):
+
+                self.amount = 0
+                self.stage += 1
+                arcade.unschedule(self.spawn_next_enemy)
+            else:
+                arcade.unschedule(self.spawn_next_enemy)
+                self.amount = 0
+                self.part += 1
+                arcade.schedule(self.spawn_next_enemy, self.level_enemy_spawns[self.stage][self.part]["interval"])
+
+
+        
 
 
 class Level(Scene):
@@ -25,12 +60,14 @@ class Level(Scene):
 
 
 #GUI for levels is below
-def draw_information(parent, x = 5, y = 625, font_size = 20):
-    arcade.draw_text(f"Money: {parent.money}", x, y,  font_size = font_size)
-    arcade.draw_text(f"Health: {parent.health}", x, y - 1.5*font_size, font_size=font_size)
-    arcade.draw_text(f"Stage: {parent.stage}", x, y - 3*font_size, font_size=font_size)
+def draw_information(level:Level, x = 5, y = 625, font_size = 20):
+    """Draws score, money and stage"""
+    arcade.draw_text(f"Money: {level.money}", x, y,  font_size = font_size)
+    arcade.draw_text(f"Health: {level.health}", x, y - 1.5*font_size, font_size=font_size)
+    arcade.draw_text(f"Stage: {level.stage}", x, y - 3*font_size, font_size=font_size)
 
 class BuyTowerPanels(UIAnchorWidget):
+    """BuyTowerPanels manager"""
 
     TOWERS = [SniperTurret, SimpleTurret, PierceTurret, SpeedTurret]
 
@@ -49,6 +86,7 @@ class BuyTowerPanels(UIAnchorWidget):
         return [BuyTowerPanel(self.level, self, tower).with_space_around(bg_color=LIGHT_STEEL_BLUE).with_border().with_space_around(10,10,20,20) for tower in self.__class__.TOWERS]
 
 class BuyTowerPanel(UIBoxLayout):
+    """One tower panel"""
     def __init__(self, level:Level, net_parent: BuyTowerPanels, tower: Tower):
         self.net_parent = net_parent
         self.level = level

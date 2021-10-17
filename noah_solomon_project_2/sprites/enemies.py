@@ -42,7 +42,7 @@ class Enemy(AnimatedTimeBasedSprite):
      START_SPEED = None
      START_DAMAGE = None
 
-     def __init__(self, parent, destinations: List[List], **kwargs):
+     def __init__(self, level, destinations: List[List], **kwargs):
          super().__init__(**kwargs)
          
          self.frames = self.__class__.WALK_ANIMATION
@@ -105,21 +105,27 @@ class Enemy(AnimatedTimeBasedSprite):
 
 
 
-class Bear(Enemy):
-     WALK_ANIMATION = extract_textures("Bear", 5, 8, 1)
-     START_HEALTH = 500
-     START_SPEED = 1
-     START_DAMAGE = 30
-
-
-class Toad(Enemy):
-     WALK_ANIMATION = extract_textures("Toad", 5, 8, 1)
-     START_HEALTH = 500
-     START_SPEED = 1
-     START_DAMAGE = 30
 
 class Mushrooms(Enemy):
+     """Fast but dont have a lot of health and damage"""
      WALK_ANIMATION = extract_textures("Mushrooms", 5, 8, 1)
-     START_HEALTH = 500
+     START_HEALTH = 10
+     START_SPEED = 1.25
+     START_DAMAGE = 1
+     WORTH = 1
+
+class Toad(Enemy):
+     """Moderate speed but smallish damage and health"""
+     WALK_ANIMATION = extract_textures("Toad", 5, 8, 1)
+     START_HEALTH = 20
      START_SPEED = 1
-     START_DAMAGE = 30
+     START_DAMAGE = 2
+     WORTH = 3
+
+class Bear(Enemy):
+     """Tank enemy lots of health and damage but very slow"""
+     WALK_ANIMATION = extract_textures("Bear", 5, 8, 1)
+     START_HEALTH = 100
+     START_SPEED = 0.5
+     START_DAMAGE = 10
+     WORTH = 10

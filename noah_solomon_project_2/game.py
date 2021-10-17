@@ -41,6 +41,17 @@ class MyGame(arcade.Window):
         self.manager.enable()
         self.manager.add(buy_tower_panel_manager)
 
+        self.spawner = Spawner(self, [[{
+            "enemies": [Toad],
+            "probabilities":[1],
+            "amount": 20,
+            "interval": 0.5
+        },{
+            "enemies": [Bear, Toad, Mushrooms],
+            "probabilities":[0.334,0.333,0.333],
+            "amount": 300,
+            "interval": 0.3
+        }]], [(0,0), (50,200), (200,200)])
         self.buy_tower_panels = []
         self.enemy_list = SpriteList(use_spatial_hash=False)
         self.projectile_list = SpriteList(use_spatial_hash=False)
@@ -49,27 +60,10 @@ class MyGame(arcade.Window):
         self.mouse_motion_sprites = SpriteList()
         self.mouse_press_sprites = SpriteList()
 
-        
-
-    
-
         self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
+        self.spawner.spawn_next_wave()
 
-
-
-        turret = PierceTurret(self)
-        turret.center_x = 400
-        turret.center_y = 300
-        self.enemy_list.append(Bear(self, [(0,32), (500,50), (500,500)]))
-        self.enemy_list.append(Mushrooms(self, [(0,0), (500,50), (500,500)]))
-        self.enemy_list.append(Toad(self, [(60,10), (500,50), (500,500)]))
-        self.enemy_list.append(Toad(self, [(60,20), (500,50), (500,500)]))
-        self.enemy_list.append(Toad(self, [(60,50), (500,50), (500,500)]))
-        self.enemy_list.append(Toad(self, [(60,60), (500,50), (500,500)]))
-        arcade.schedule(self.spawn, 0.5)
-
-    def spawn(self, *args):
-        self.enemy_list.append(Toad(self, [(60,60), (500,50), (500,500)]))
+     
     def on_draw(self):
 
         arcade.start_render()
