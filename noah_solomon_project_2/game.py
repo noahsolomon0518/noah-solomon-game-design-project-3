@@ -34,7 +34,7 @@ class MyGame(arcade.Window):
     def setup(self):
         self.manager = UIManager()
         self.manager.enable()
-        self.manager.add(InformationBox(self))
+        self.manager.add(BuyTowerPanels())
         self.enemy_list = SpriteList()
         self.projectile_list = SpriteList()
         self.tower_list = SpriteList()
@@ -59,6 +59,7 @@ class MyGame(arcade.Window):
         self.gun_list.draw()
         self.enemy_list.draw()
         self.projectile_list.draw()
+        self.manager.draw()
         draw_information(self)
 
 

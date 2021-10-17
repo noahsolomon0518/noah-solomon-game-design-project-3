@@ -1,14 +1,29 @@
-from typing import Union
+from typing import List, Union
 import arcade
+from arcade import sprite
+from arcade import color
 from arcade.application import Window
+from arcade.color import AUBURN, BLUE, BLUE_GRAY
 from arcade.gui import *
 from arcade.scene import Scene
 from arcade.csscolor import BLACK
+from pyglet.libs.win32.constants import SPI_GETACCESSTIMEOUT
+
+from sprites.towers import PierceTurret, SimpleTurret, SniperTurret, Tower, Turret
 
 
 
 
 
+class BuyTowerPanel(sprite.Sprite):
+    def __init__(self, tower: Tower, **kwargs):
+        super().__init__(filename=tower.FILENAME, **kwargs)
+    
+
+    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+        print("HELLO")
+        if(self.collides_with_point((x,y))):
+            print("MOUSE ON SPRITE")
 
 
 #GUI for levels is below
@@ -17,75 +32,33 @@ def draw_information(parent, x = 5, y = 625, font_size = 20):
     arcade.draw_text(f"Health: {parent.health}", x, y - 1.5*font_size, font_size=font_size)
     arcade.draw_text(f"Stage: {parent.stage}", x, y - 3*font_size, font_size=font_size)
 
+class BuyTowerPanels(UIAnchorWidget):
+
+    TOWERS = [SniperTurret, SimpleTurret, PierceTurret]
+
+    def __init__(self, **kwargs):
+        child = self.get_h_box()
+        super().__init__(child = child, anchor_x="center", anchor_y="bottom", **kwargs)
     
-
-class InformationBox(UIAnchorWidget):
-
-
-    def __init__(self, net_parent: Union[Scene, Window], **kwargs):
-        self.net_parent = net_parent
-        child = UIBorder(self.get_v_box()).with_space_around(left=5, top=5)
-        super().__init__(child = child,anchor_x="left", anchor_y="top", background_color = BLACK, **kwargs)
+    def get_h_box(self):
+        children = self.get_buy_tower_panels()
+        return UIBoxLayout(vertical=False, children=children)
     
+    def get_buy_tower_panels(self):
+        return [UIBoxLayout(
+            children=[
+                UITextArea(text=str(tower.__name__), height = 20, width = 100, font_size=10).with_space_around(2,2,2,2, BLUE),
+                UISpriteWidget(sprite = sprite.Sprite(tower.FILENAME), height=32, width=32),
+                UILabel(text=str(tower.COST))
+            ]
+        ).with_space_around(bg_color=BLUE_GRAY).with_border().with_space_around(10,10,20,20) for tower in self.__class__.TOWERS]
 
 
-    def get_v_box(self):
-        children = self.get_children()
-        v_box = UIBoxLayout(children=children)
-        return v_box
-    
-    def get_children(self):
+def draw_buy_tower_panels(buy_tower_panels: List[BuyTowerPanel] = [
 
-    
-
-        health_label = UITextArea(text="Health:")
-        health_label.fit_content()
-        money_label = UITextArea(text="Money:")
-        money_label.fit_content()
-        stage_label = UITextArea(text="Stage:")
-        stage_label.fit_content()
+], width = 70):
+    for i, buy_tower in enumerate(buy_tower_panels):
+        buy_tower.center_x = (i+1)*width
+        buy_tower.center_y = 30
 
 
-
-
-        return [
-            UIBoxLayout(vertical=False, children=[
-                health_label, HealthLabelValue(self.net_parent)
-            ]).with_space_around(top=5, left=5, right = 5),
-            UIBoxLayout(vertical=False, children=[
-                money_label, MoneyLabelValue(self.net_parent)
-            ]).with_space_around(top=5, left=5, right = 5),
-            UIBoxLayout(vertical=False, children=[
-                stage_label, StageLabelValue(self.net_parent)
-            ]).with_space_around(top=5, left=5, bottom=5, right = 5)
-        ]
-
-
-class InformationLabelValue(UITextArea):
-    def __init__(self, net_parent: Union[Scene, Window], **kwargs):
-        self.net_parent = net_parent 
-        super().__init__(text="        ", **kwargs)
-        self.fit_content()
-        
-    def on_update(self, dt):
-        self.text = self.get_text()
-        self.fit_content()
-        return super().on_update(dt)
-
-
-    def get_text(self):
-        """Abstract method for updating text"""
-
-class HealthLabelValue(InformationLabelValue):
-    def get_text(self):
-        return str(self.net_parent.health)
-
-class StageLabelValue(InformationLabelValue):
-    def get_text(self):
-        return str(self.net_parent.stage)
-
-class MoneyLabelValue(InformationLabelValue):
-
-
-    def get_text(self):
-        return str(self.net_parent.money)

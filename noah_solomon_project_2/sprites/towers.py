@@ -22,6 +22,7 @@ class Tower(Sprite):
 
     COST = None
     START_RANGE = None
+    FILENAME = None
 
     def __init__(self, parent: Union[Window, Scene], filename: str = None, range: int = None, **kwargs):
         self.parent = parent
@@ -29,7 +30,7 @@ class Tower(Sprite):
         self.upgrade_stage = 0
         self.range = range or self.__class__.START_RANGE
         self.enemies_in_range = None
-        super().__init__(filename=filename, **kwargs)
+        super().__init__(filename=filename or self.__class__.FILENAME, **kwargs)
         self.gun = Sprite("assets/towers/turret_gun.png", center_x=self.center_x, center_y=self.center_y)
         self.parent.gun_list.append(self.gun)
         
