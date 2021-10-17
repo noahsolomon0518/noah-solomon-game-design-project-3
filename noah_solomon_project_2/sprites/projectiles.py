@@ -36,14 +36,14 @@ class Projectile(Sprite):
         return np.random.normal(scale = ACCURACY_SCALER/self.accuracy)
 
     
-    def move_to_target(self):
+    def move_to_target(self, dt):
         """Move towards target"""
-        self.center_x += self.speed * self.direction_vector[0]
-        self.center_y += self.speed * self.direction_vector[1]
+        self.center_x += self.speed * dt * 60 * self.direction_vector[0]
+        self.center_y += self.speed * dt * 60 * self.direction_vector[1]
 
 
     def on_update(self, delta_time: float = 1 / 60):
-        self.move_to_target()
+        self.move_to_target(delta_time)
         self.delete_if_off_screen()
    
 
@@ -78,6 +78,7 @@ class PiercingBullet(Projectile):
     def on_enemy_collision(self, enemy: Sprite = None):
         """Handles what happens when collides with specific enemy"""
         enemy.health -= self.damage
+        print(enemy.health)
         self.health -= 1
         if(not self.health):
             self.kill()

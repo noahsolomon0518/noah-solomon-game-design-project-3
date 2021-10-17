@@ -154,4 +154,13 @@ class PierceTurret(Turret):
     def attack_enemy(self, dt):
         """Creates instance of PierceBullet"""
         self.parent.projectile_list.append(PiercingBullet(self.parent, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_PIERCE, center_x = self.center_x, center_y = self.center_y))
-        
+
+class SpeedTurret(Turret):
+    COST = 100
+    FILENAME = "assets/towers/speed_turret.png"
+    START_RANGE = 100
+    START_SPEED = 20
+    START_BULLET = Bullet
+    START_BULLET_DAMAGE = 10
+    START_BULLET_SPEED = 3
+    START_BULLET_ACCURACY = 0.2

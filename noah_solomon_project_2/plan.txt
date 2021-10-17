@@ -77,8 +77,28 @@ Levels
                 spawn_next_enemy() - spawns next enemy in stage. Is sceduled
 
     GUI Classes:
-        BuyPanel - bottom panel that holds all the towers that can be bought
-        BuyTowerButton - button that allows player to buy tower. Has picture of tower and price
+        BuyTowerPanels - bottom panel that holds all the towers that can be bought
+
+        BuyTowerPanel - button that allows player to buy tower. Has picture of tower and price
+            Functions:
+                on_idle() - what happens in panel default state
+                on_buy() - what happens when buying tower. Instantiates preview_tower
+                
+        PreviewTower - Allows player to see tower location before buys it
+            Instance Variables:
+                net_parent - game or scene Instance
+                tower - Tower class that is used
+                filename - for sprite
+                cost - to determine if player can buy
+                
+
+
+            Functions:
+                on_mouse_click() - places tower down if not on path and not pressing button and if have money
+                on_update() - move to x and y of mouse pointer
+                draw_range() - draws range of tower continuosly
+                
+
         QuitButton - button to quit
         InformationBox - contains values for money, stage and health
         
