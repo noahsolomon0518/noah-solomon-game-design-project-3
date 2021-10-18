@@ -1,19 +1,13 @@
 from typing import List, Union
 import arcade
 from arcade import sprite
-from arcade import color
-from arcade.application import Window
 from arcade.gui import *
-from enum import Enum
 from numpy.random import choice
 from arcade.scene import Scene
 from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE
-from functools import partial
 from sprites.towers import PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
+from sprites.enemies import *
 
-class BuyTowerPanelsStates(Enum):
-    IDLE = 0
-    BUYING = 1
 
 class Spawner:
     """Controls spawning of enemies based on level_enemy_spawns config that is passed to it. This is held in Level"""
@@ -53,7 +47,58 @@ class Spawner:
 
 
 class Level(Scene):
-    pass
+    ENEMY_SPAWNS = None
+    ENEMY_PATH = None
+    TILESHEET = None
+    START_MONEY = None
+    START_HEALTH = None
+
+
+    def __init__(self):
+        super().__init__()
+        self.add_sprite_list("enemy_list")
+        self.add_sprite_list("tower_list")
+        self.add_sprite_list("projectile_list")
+        self.add_sprite_list("gun_list")
+        self.add_sprite_list("mouse_motion_sprites")
+        self.add_sprite_list("mouse_press_sprites")
+
+        self.manager = UIManager()
+
+        self.buy_tower_panels = []
+
+        self.health = 59
+        self.money = 8000
+        self.stage = 1
+
+        arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
+        self.setup()
+
+    def setup(self):
+        buy_tower_panel_manager = BuyTowerPanels(self)
+        self.manager.enable()
+        self.manager.add(buy_tower_panel_manager)
+        self.spawner = Spawner(self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_SPAWNS)
+        self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
+        self.spawner.spawn_next_wave()
+
+    def draw(self, names, **kwargs) -> None:
+        self.manager.draw()
+        draw_information(self)
+        return super().draw(names=names, **kwargs)
+
+    def handle_enemy_projectile_collisions(self):
+        enemy_projectile_collisions = [enemy.collides_with_list(self.get_sprite_list("projectile_list")) for enemy in self.get_sprite_list("enemy_list")]
+        for i, enemy in enumerate(self.get_sprite_list("enemy_list")):
+            enemy: Enemy
+            projectiles_collided = enemy_projectile_collisions[i]
+            for projectile in projectiles_collided:
+                enemy.on_collision_with_projectile(projectile)
+
+    
+    
+    
+    
 
 
 
