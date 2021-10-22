@@ -1,6 +1,7 @@
 from typing import List, Union
 import arcade
 from arcade import sprite
+from arcade import color
 from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
@@ -66,7 +67,7 @@ class Level(View):
 
     def __init__(self, game: Window):
         self.game = game
-        super().__init__()
+        super().__init__(game)
         self.tilemap = arcade.tilemap.load_tilemap(self.__class__.TILESHEET, use_spatial_hash=True)
         self.front_layer = SpriteList()
         self.back_layer = SpriteList()
@@ -91,6 +92,7 @@ class Level(View):
         self.back_layer = self.tilemap.sprite_lists["background"]
         self.front_layer = self.tilemap.sprite_lists["front"]
         self.manager.enable()
+        self.manager.add(widget= Quit(self.game))
         self.manager.add(buy_tower_panel_manager)
         self.spawner = Spawner(self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_PATH)
         self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
@@ -105,6 +107,7 @@ class Level(View):
 
 
     def on_draw(self):
+        arcade.start_render()
         self.back_layer.draw()
         self.front_layer.draw()
         self.enemy_list.draw()
@@ -137,9 +140,22 @@ class Level(View):
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         if(self.preview_tower):
             self.preview_tower[0].on_mouse_press(x,y)
+        
+    def on_hide_view(self):
+        return super().on_hide_view()
 
 
-    
+class Quit(UIFlatButton):
+
+    def __init__(self, game: Window):
+        super().__init__(text="Quit", style=dict(bg_color = RED))
+        self.game = game
+
+    def on_click(self, event: UIOnClickEvent):
+        self.game.hide_view()
+        print(self.game.current_view)
+        self.game.show_view(self.game.intro_screen)
+        
     
     
     
@@ -150,6 +166,30 @@ class TestLevel(Level):
         "probabilities":[1],
         "amount": 100,
         "interval": 1
+    }]]
+    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
+    TILESHEET = "tilemaps/map1.json"
+    START_MONEY = 5000
+    START_HEALTH = 100
+
+class TestLevel2(Level):
+    ENEMY_SPAWNS = [[{
+        "enemies":[Toad],
+        "probabilities":[1],
+        "amount": 100,
+        "interval": 1
+    }]]
+    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
+    TILESHEET = "tilemaps/map1.json"
+    START_MONEY = 500
+    START_HEALTH = 100
+
+class TestLevel3(Level):
+    ENEMY_SPAWNS = [[{
+        "enemies":[Toad, Bear],
+        "probabilities":[0.5,0.5],
+        "amount": 100,
+        "interval": 0.5
     }]]
     ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
     TILESHEET = "tilemaps/map1.json"
@@ -254,6 +294,9 @@ class PreviewTower(sprite.Sprite):
         if(y<100):
             return
 
+        if(self.level.radius_list[0].color == RED):
+            return
+
         self.level.tower_list.append(self.tower(self.level, center_x = self.center_x, center_y=self.center_y))
         self.level.money -= self.cost
     
@@ -267,6 +310,11 @@ class PreviewTower(sprite.Sprite):
     
     def on_mouse_motion(self, x,y):
         """Goes to mouse pointer"""
+        collisions = self.collides_with_list(self.level.front_layer)
+        if(collisions):
+            self.level.radius_list[0].color = RED
+        else:
+            self.level.radius_list[0].color = WHITE
         self.center_y = (y//32)*32  + 16
         self.center_x = (x//32)*32  + 16
         self.level.radius_list[0].center_y = self.center_y

@@ -106,3 +106,15 @@ Levels
 
 
 
+Game
+    on game start intro screen view is revealed which are buttons for eac level. When level button is clicked view
+    is displayed and that level is displayed
+
+
+    classes 
+        IntroScreen(view)
+            instance variables 
+                levels - list of the levels that user can play
+
+            functions 
+                create_play_buttons() - creates a play button for each level
