@@ -1,12 +1,20 @@
 from typing import List, Union
 import arcade
 from arcade import sprite
+from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
-from arcade.scene import Scene
-from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE
+from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE, WHITE
 from sprites.towers import PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 from sprites.enemies import *
+
+def tile_to_cartesian(tile):
+    return  (32*tile[0]+16, 32*tile[1]+16)
+
+def tiles_to_cartesian(locations: List[List]):
+    """Converts tile locations to cartesian locations"""
+    print(locations)
+    return [tile_to_cartesian(location) for location in locations]
 
 
 class Spawner:
@@ -27,7 +35,9 @@ class Spawner:
         """Spawns enemies according to stage and part given"""
         enemy_choices = self.level_enemy_spawns[self.stage][self.part]["enemies"]
         probabilities = self.level_enemy_spawns[self.stage][self.part]["probabilities"]
-        self.level.enemy_list.append(choice(enemy_choices, p = probabilities)(self.level, self.level_enemy_path))
+        enemy = choice(enemy_choices, p = probabilities)(self.level, self.level_enemy_path)
+        self.level.enemy_list.append(enemy)
+
         self.amount += 1
         
         if(self.amount>=self.level_enemy_spawns[self.stage][self.part]["amount"]):
@@ -46,7 +56,7 @@ class Spawner:
         
 
 
-class Level(Scene):
+class Level(View):
     ENEMY_SPAWNS = None
     ENEMY_PATH = None
     TILESHEET = None
@@ -54,53 +64,97 @@ class Level(Scene):
     START_HEALTH = None
 
 
-    def __init__(self):
+    def __init__(self, game: Window):
+        self.game = game
         super().__init__()
-        self.add_sprite_list("enemy_list")
-        self.add_sprite_list("tower_list")
-        self.add_sprite_list("projectile_list")
-        self.add_sprite_list("gun_list")
-        self.add_sprite_list("mouse_motion_sprites")
-        self.add_sprite_list("mouse_press_sprites")
-
+        self.tilemap = arcade.tilemap.load_tilemap(self.__class__.TILESHEET, use_spatial_hash=True)
+        self.front_layer = SpriteList()
+        self.back_layer = SpriteList()
+        self.radius_list = SpriteList()
+        self.enemy_list = SpriteList(use_spatial_hash=False)
+        self.tower_list = SpriteList(use_spatial_hash=False)
+        self.projectile_list = SpriteList(use_spatial_hash=False)
+        self.gun_list = SpriteList(use_spatial_hash=False)
+        self.preview_tower = SpriteList(use_spatial_hash=False)
         self.manager = UIManager()
 
         self.buy_tower_panels = []
 
-        self.health = 59
-        self.money = 8000
+        self.health = self.__class__.START_HEALTH
+        self.money = self.__class__.START_MONEY
         self.stage = 1
 
-        arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
         self.setup()
 
     def setup(self):
         buy_tower_panel_manager = BuyTowerPanels(self)
+        self.back_layer = self.tilemap.sprite_lists["background"]
+        self.front_layer = self.tilemap.sprite_lists["front"]
         self.manager.enable()
         self.manager.add(buy_tower_panel_manager)
-        self.spawner = Spawner(self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_SPAWNS)
+        self.spawner = Spawner(self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_PATH)
         self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
         self.spawner.spawn_next_wave()
 
-    def draw(self, names, **kwargs) -> None:
+    def on_update(self, delta_time) -> None:
+        self.handle_enemy_projectile_collisions()
+        self.enemy_list.on_update(delta_time)
+        self.projectile_list.on_update(delta_time)
+        self.tower_list.on_update(delta_time)
+        self.preview_tower.update()
+
+
+    def on_draw(self):
+        self.back_layer.draw()
+        self.front_layer.draw()
+        self.enemy_list.draw()
+        self.tower_list.draw()
+        self.projectile_list.draw()
+        self.gun_list.draw()
+        self.preview_tower.draw()
+        self.radius_list.draw()
         self.manager.draw()
         draw_information(self)
-        return super().draw(names=names, **kwargs)
+
+ 
 
     def handle_enemy_projectile_collisions(self):
-        enemy_projectile_collisions = [enemy.collides_with_list(self.get_sprite_list("projectile_list")) for enemy in self.get_sprite_list("enemy_list")]
-        for i, enemy in enumerate(self.get_sprite_list("enemy_list")):
+        enemy_projectile_collisions = [enemy.collides_with_list(self.projectile_list) for enemy in self.enemy_list]
+        for i, enemy in enumerate(self.enemy_list):
             enemy: Enemy
             projectiles_collided = enemy_projectile_collisions[i]
             for projectile in projectiles_collided:
                 enemy.on_collision_with_projectile(projectile)
 
+    def show_preview_tower(self, tower):
+        self.preview_tower.append(tower)
+
+
+    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+        if(self.preview_tower):
+            self.preview_tower[0].on_mouse_motion(x,y)
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        if(self.preview_tower):
+            self.preview_tower[0].on_mouse_press(x,y)
+
+
     
     
     
     
 
-
+class TestLevel(Level):
+    ENEMY_SPAWNS = [[{
+        "enemies":[Toad],
+        "probabilities":[1],
+        "amount": 100,
+        "interval": 1
+    }]]
+    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
+    TILESHEET = "tilemaps/map1.json"
+    START_MONEY = 5000
+    START_HEALTH = 100
 
 
 
@@ -153,8 +207,8 @@ class BuyTowerPanel(UIBoxLayout):
         })
         self.children = [self.label, self.sprite_preview, self.cost, self.buy]
         self.preview_tower  = PreviewTower(self.level, self.tower)
-        self.level.mouse_motion_sprites.append(self.preview_tower)
-        self.level.mouse_press_sprites.append(self.preview_tower)
+        self.level.preview_tower.append(self.preview_tower)
+
     
     def on_idle(self):
         """Controls how button looks when idle"""
@@ -185,6 +239,9 @@ class PreviewTower(sprite.Sprite):
     def __init__(self, level: Level, tower: Tower):
         self.level = level
         self.tower = tower
+        self.level.radius_list.append(sprite.SpriteCircle(self.tower.START_RANGE, WHITE))
+        self.level.radius_list[0].alpha = 100
+        
         self.cost = tower.COST
         super().__init__(filename=tower.FILENAME)
 
@@ -197,13 +254,22 @@ class PreviewTower(sprite.Sprite):
         if(y<100):
             return
 
-        self.level.tower_list.append(self.tower(self.level, center_x = x, center_y=y))
+        self.level.tower_list.append(self.tower(self.level, center_x = self.center_x, center_y=self.center_y))
         self.level.money -= self.cost
     
 
+
+    
+    def kill(self):
+        self.level.radius_list[0].kill()
+        return super().kill()
+    
+    
     def on_mouse_motion(self, x,y):
         """Goes to mouse pointer"""
-        self.center_y = y
-        self.center_x = x
+        self.center_y = (y//32)*32  + 16
+        self.center_x = (x//32)*32  + 16
+        self.level.radius_list[0].center_y = self.center_y
+        self.level.radius_list[0].center_x = self.center_x
 
     

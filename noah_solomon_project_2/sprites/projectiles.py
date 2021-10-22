@@ -1,5 +1,6 @@
 from arcade import Sprite, Window, SpriteList
 from math import sqrt
+from arcade.scene import Scene
 import numpy as np
 
 
@@ -11,9 +12,9 @@ ACCURACY_SCALER = 5
 
 class Projectile(Sprite):
     """Abstracted projectile class"""
-    def __init__(self, game: Window, target: Sprite, filename: str, damage: int, speed: int, accuracy:int, **kwargs):
+    def __init__(self, level: Scene, target: Sprite, filename: str, damage: int, speed: int, accuracy:int, **kwargs):
         super().__init__(filename = filename, **kwargs)
-        self.game = game
+        self.level = level
         self.damage = damage
         self.speed = speed
         self.accuracy = accuracy
@@ -21,14 +22,15 @@ class Projectile(Sprite):
 
     def calculate_direction_vector(self, target: Sprite):
         """Calculate projectile direction vector to target"""
+
         x_noise = self.get_noise_for_direction()
         y_noise = self.get_noise_for_direction()
-        position_1 = (self.center_x, self.center_y)
-        position_2 = (target.center_x + x_noise, target.center_y + y_noise)
+        position_1 = (self.center_x, self.center_y+60*target.direction_vector[1])
+        position_2 = (target.center_x + x_noise, target.center_y + y_noise + 60*target.direction_vector[1])
         distance = euclidean_distance(position_1, position_2)
         return ( 
-            (target.center_x - self.center_x + x_noise)/distance, 
-            (target.center_y - self.center_y + y_noise)/distance
+            (target.center_x + 10*target.direction_vector[0] - self.center_x + x_noise)/distance, 
+            (target.center_y + 10*target.direction_vector[1] - self.center_y + y_noise)/distance
             )
 
     def get_noise_for_direction(self):
@@ -50,7 +52,7 @@ class Projectile(Sprite):
     def delete_if_off_screen(self):
         """Remove from memory if off screen"""
         pad = 5
-        if(self.center_x>self.game.width + pad or self.center_x<-pad or self.center_y>self.game.height + pad or self.center_y<-pad):
+        if(self.center_x>self.level.game.width + pad or self.center_x<-pad or self.center_y>self.level.game.height + pad or self.center_y<-pad):
             self.kill()
 
     def on_enemy_collision(self, enemy: Sprite = None):
@@ -78,7 +80,6 @@ class PiercingBullet(Projectile):
     def on_enemy_collision(self, enemy: Sprite = None):
         """Handles what happens when collides with specific enemy"""
         enemy.health -= self.damage
-        print(enemy.health)
         self.health -= 1
         if(not self.health):
             self.kill()

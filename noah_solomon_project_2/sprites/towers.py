@@ -3,9 +3,8 @@ from arcade import Sprite
 import arcade
 from arcade import Window
 from math import cos, sin, sqrt
+from arcade.application import View
 from arcade.scene import Scene
-from levels import Level
-from arcade.sprite_list.sprite_list import SpriteList
 from sprites.config import UPGRADES
 from sprites.projectiles import Bullet, PiercingBullet
 import math
@@ -24,7 +23,7 @@ class Tower(Sprite):
     START_RANGE = None
     FILENAME = None
 
-    def __init__(self, level: Union[Window, Scene], filename: str = None, range: int = None, **kwargs):
+    def __init__(self, level: View, filename: str = None, range: int = None, **kwargs):
         self.level = level
         self.attacking = False
         self.upgrade_stage = 0
@@ -32,14 +31,14 @@ class Tower(Sprite):
         self.enemies_in_range = None
         super().__init__(filename=filename or self.__class__.FILENAME, **kwargs)
         self.gun = Sprite("assets/towers/turret_gun.png", center_x=self.center_x, center_y=self.center_y)
-        self.level.get_sprite_list("gun_list").append(self.gun)
+        self.level.gun_list.append(self.gun)
         
 
 
     def detect_enemies(self):
         """Returns all enemies from enemy list that are within range."""
         self.enemies_in_range = [
-            sprite for sprite in self.level.enemy_list 
+            sprite for sprite in self.level.enemy_list
             if euclidean_distance(self, sprite) <= self.range
         ]
         if(self.enemies_in_range):
@@ -70,6 +69,8 @@ class Tower(Sprite):
 
     def on_update(self, delta_time):
         pass
+
+
         
             
     
@@ -89,7 +90,7 @@ class Turret(Tower):
     START_BULLET_ACCURACY = None
 
 
-    def __init__(self, level: Level, **kwargs):
+    def __init__(self, level: Scene, **kwargs):
 
         self.speed = self.__class__.START_SPEED
         self.bullet = self.__class__.START_BULLET
@@ -124,19 +125,19 @@ class SimpleTurret(Turret):
     START_RANGE = 500
     START_SPEED = 2
     START_BULLET = Bullet
-    START_BULLET_DAMAGE = 10
+    START_BULLET_DAMAGE = 1
     START_BULLET_SPEED = 15
-    START_BULLET_ACCURACY = 0.4
+    START_BULLET_ACCURACY = 0.5
 
 
 class SniperTurret(Turret):
     COST = 100
     FILENAME = "assets/towers/speed_turret.png"
     START_RANGE = 1000
-    START_SPEED = 1
+    START_SPEED = 0.5
     START_BULLET = Bullet
-    START_BULLET_DAMAGE = 100
-    START_BULLET_SPEED = 10
+    START_BULLET_DAMAGE = 10
+    START_BULLET_SPEED = 15
     START_BULLET_ACCURACY = 2
 
 
