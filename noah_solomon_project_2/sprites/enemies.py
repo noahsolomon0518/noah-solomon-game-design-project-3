@@ -40,9 +40,11 @@ class Enemy(AnimatedTimeBasedSprite):
      START_HEALTH = None
      START_SPEED = None
      START_DAMAGE = None
+     WORTH = None
 
      def __init__(self, level, destinations: List[List], **kwargs):
          super().__init__(**kwargs)
+         self.level = level
          self.frames = self.__class__.WALK_ANIMATION
          self.slowing = False
          self.center_x = destinations[0][0]
@@ -105,10 +107,14 @@ class Enemy(AnimatedTimeBasedSprite):
 
      def on_reach_last_destination(self):
           """When the enemy reaches the last destination reduce castles health by 10 ect..."""
+          self.level.health -= self.__class__.WORTH
+          if(self.level.health<=0):
+               self.level.on_lose()
           self.kill()
 
      def on_death(self):
           """Control what happens when health<0"""
+          self.level.money += self.__class__.WORTH
           self.kill()
 
      def on_update(self, delta_time: float = 1 / 60):

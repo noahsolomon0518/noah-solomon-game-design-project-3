@@ -30,12 +30,16 @@ class Spawner:
         self.in_wave = False
 
     def spawn_next_wave(self):
+        """Spawns wave <stage>. If no more waves signals for winning action"""
+        if(self.stage>=len(self.level_enemy_spawns)):
+            self.level.on_win()
+            return
         self.in_wave = True
         arcade.schedule(self.spawn_next_enemy, interval = self.level_enemy_spawns[self.stage][self.part]["interval"])
 
-
     def spawn_next_enemy(self, dt = None):
         """Spawns enemies according to stage and part given"""
+        
         enemy_choices = self.level_enemy_spawns[self.stage][self.part]["enemies"]
         probabilities = self.level_enemy_spawns[self.stage][self.part]["probabilities"]
         enemy = choice(enemy_choices, p = probabilities)(self.level, self.level_enemy_path)
@@ -137,6 +141,7 @@ class Level(View):
  
 
     def handle_enemy_projectile_collisions(self):
+        """All collisions between bullet and enemy handled here"""
         enemy_projectile_collisions = [enemy.collides_with_list(self.projectile_list) for enemy in self.enemy_list]
         for i, enemy in enumerate(self.enemy_list):
             enemy: Enemy
@@ -145,14 +150,17 @@ class Level(View):
                 enemy.on_collision_with_projectile(projectile)
 
     def show_preview_tower(self, tower):
+        """Shows range of tower"""
         self.preview_tower.append(tower)
 
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+        """Move preview tower"""
         if(self.preview_tower):
             self.preview_tower[0].on_mouse_motion(x,y)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        """Buy tower"""
         if(self.preview_tower):
             self.preview_tower[0].on_mouse_press(x,y)
         
@@ -163,6 +171,13 @@ class Level(View):
     def on_show_view(self):
         self.setup()
 
+    def on_lose(self):
+        """Displays lose screen"""
+        pass
+
+    def on_win(self):
+        """Display winning screen"""
+
 
 class Quit(UIFlatButton):
 
@@ -171,6 +186,7 @@ class Quit(UIFlatButton):
         self.game = game
 
     def on_click(self, event: UIOnClickEvent):
+        """Quits to  main screen"""
         self.game.hide_view()
         print(self.game.current_view)
         self.game.show_view(self.game.intro_screen)
@@ -184,9 +200,10 @@ class NextWave(UIFlatButton):
         self.level = level
 
     def on_click(self, event: UIOnClickEvent):
+        """If no current wave go to next wave"""
         if(not self.level.spawner.in_wave):
             self.level.spawner.spawn_next_wave()
-            
+
 
     def on_update(self, dt):
         if(self.level.spawner.in_wave):
