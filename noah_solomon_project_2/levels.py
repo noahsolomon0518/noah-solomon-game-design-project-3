@@ -5,7 +5,7 @@ from arcade import color
 from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
-from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE, WHITE
+from arcade.csscolor import BLACK, BLUE,RED, LIGHT_STEEL_BLUE, WHITE
 from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 from sprites.enemies import *
 
@@ -27,8 +27,10 @@ class Spawner:
         self.stage = 0
         self.part = 0
         self.amount = 0
+        self.in_wave = False
 
     def spawn_next_wave(self):
+        self.in_wave = True
         arcade.schedule(self.spawn_next_enemy, interval = self.level_enemy_spawns[self.stage][self.part]["interval"])
 
 
@@ -47,13 +49,16 @@ class Spawner:
                 self.amount = 0
                 self.stage += 1
                 arcade.unschedule(self.spawn_next_enemy)
+                self.in_wave = False
             else:
                 arcade.unschedule(self.spawn_next_enemy)
                 self.amount = 0
                 self.part += 1
                 arcade.schedule(self.spawn_next_enemy, self.level_enemy_spawns[self.stage][self.part]["interval"])
 
-
+    def delete(self):
+        arcade.unschedule(self.spawn_next_enemy)
+        del self
         
 
 
@@ -69,6 +74,22 @@ class Level(View):
         self.game = game
         super().__init__(game)
         self.tilemap = arcade.tilemap.load_tilemap(self.__class__.TILESHEET, use_spatial_hash=True)
+        self.front_layer = None
+        self.back_layer = None
+        self.radius_list = None
+        self.enemy_list = None
+        self.tower_list = None
+        self.projectile_list = None
+        self.gun_list = None
+        self.preview_tower = None
+        self.manager = None
+        self.buy_tower_panels = None
+        self.health = None
+        self.money = None
+        self.stage = 1
+
+
+    def setup(self):
         self.front_layer = SpriteList()
         self.back_layer = SpriteList()
         self.radius_list = SpriteList()
@@ -78,25 +99,19 @@ class Level(View):
         self.gun_list = SpriteList(use_spatial_hash=False)
         self.preview_tower = SpriteList(use_spatial_hash=False)
         self.manager = UIManager()
-
         self.buy_tower_panels = []
-
         self.health = self.__class__.START_HEALTH
         self.money = self.__class__.START_MONEY
         self.stage = 1
-
-        self.setup()
-
-    def setup(self):
         buy_tower_panel_manager = BuyTowerPanels(self)
         self.back_layer = self.tilemap.sprite_lists["background"]
         self.front_layer = self.tilemap.sprite_lists["front"]
         self.manager.enable()
         self.manager.add(widget= Quit(self.game))
+        self.manager.add(UIAnchorWidget(child = NextWave(self), anchor_x="right", anchor_y="bottom"))
         self.manager.add(buy_tower_panel_manager)
         self.spawner = Spawner(self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_PATH)
         self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
-        self.spawner.spawn_next_wave()
 
     def on_update(self, delta_time) -> None:
         self.handle_enemy_projectile_collisions()
@@ -142,7 +157,11 @@ class Level(View):
             self.preview_tower[0].on_mouse_press(x,y)
         
     def on_hide_view(self):
-        return super().on_hide_view()
+        del self
+    
+    
+    def on_show_view(self):
+        self.setup()
 
 
 class Quit(UIFlatButton):
@@ -158,13 +177,30 @@ class Quit(UIFlatButton):
         
     
     
+class NextWave(UIFlatButton):
+
+    def __init__(self, level: Level):
+        super().__init__(text="Next Wave", style=dict(bg_color = BLUE))
+        self.level = level
+
+    def on_click(self, event: UIOnClickEvent):
+        if(not self.level.spawner.in_wave):
+            self.level.spawner.spawn_next_wave()
+            
+
+    def on_update(self, dt):
+        if(self.level.spawner.in_wave):
+            self._style["bg_color"] = color.GRAY
+        else:
+            self._style["bg_color"] = BLUE
+        
     
 
 class TestLevel(Level):
     ENEMY_SPAWNS = [[{
         "enemies":[Toad],
         "probabilities":[1],
-        "amount": 100,
+        "amount": 10,
         "interval": 1
     }]]
     ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])

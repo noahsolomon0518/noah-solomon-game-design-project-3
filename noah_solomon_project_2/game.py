@@ -23,7 +23,7 @@ class MyGame(arcade.Window):
     def __init__(self):
         super().__init__(self.__class__.SCREEN_WIDTH, self.__class__.SCREEN_HEIGHT, self.__class__.SCREEN_TITLE)
         arcade.set_background_color(CORNFLOWER_BLUE)
-        self.levels = [level(self) for level in self.__class__.LEVELS]
+        self.levels = [level for level in self.__class__.LEVELS]
         self.intro_screen = IntroScreen(self, self.levels)
 
     def setup(self):
@@ -57,11 +57,9 @@ class IntroScreen(View):
 
     def on_show_view(self):
         self.manager.enable()
-        return super().on_show_view()
 
     def on_hide_view(self):
         self.manager.disable()
-        return super().on_hide_view()
     
     
     def create_play_buttons(self):
@@ -76,11 +74,11 @@ class LevelPlayButton(UIFlatButton):
     def __init__(self, game: Window, level: Level,  **kwargs):
         self.game = game
         self.level = level
-        super().__init__(text=str(level.__class__.__name__), width = 200)
+        super().__init__(text=str(level.__name__), width = 200)
         
     
     def on_click(self, event: UIOnClickEvent):
-        self.game.show_view(self.level)
+        self.game.show_view(self.level(self.game))
         return super().on_click(event)
 
     
