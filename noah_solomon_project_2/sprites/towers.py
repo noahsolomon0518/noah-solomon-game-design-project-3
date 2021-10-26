@@ -6,7 +6,7 @@ from math import cos, sin, sqrt
 from arcade.application import View
 from arcade.scene import Scene
 from sprites.config import UPGRADES
-from sprites.projectiles import Bullet, PiercingBullet
+from sprites.projectiles import Bullet, PiercingBullet, IceBullet
 import math
 
 
@@ -133,7 +133,7 @@ class SimpleTurret(Turret):
 class SniperTurret(Turret):
     COST = 100
     FILENAME = "assets/towers/speed_turret.png"
-    START_RANGE = 1000
+    START_RANGE = 100
     START_SPEED = 0.5
     START_BULLET = Bullet
     START_BULLET_DAMAGE = 10
@@ -144,7 +144,7 @@ class SniperTurret(Turret):
 class PierceTurret(Turret):
     COST = 100
     FILENAME = "assets/towers/pierce_turret.png"
-    START_RANGE = 1000
+    START_RANGE = 100
     START_SPEED = 1
     START_BULLET = Bullet
     START_BULLET_DAMAGE = 20
@@ -165,3 +165,21 @@ class SpeedTurret(Turret):
     START_BULLET_DAMAGE = 10
     START_BULLET_SPEED = 3
     START_BULLET_ACCURACY = 0.2
+
+
+
+class IceTurret(Turret):
+    COST = 100
+    FILENAME = "assets/towers/ice_turret.png"
+    START_RANGE = 100
+    START_SPEED = 1
+    START_BULLET = Bullet
+    START_BULLET_DAMAGE = 0
+    START_BULLET_SPEED = 10
+    START_BULLET_ACCURACY = 2
+    START_BULLET_SLOW_TIME = 1
+    START_BULLET_SLOW_AMOUNT = 0.5
+
+    def attack_enemy(self, dt):
+        """Creates instance of PierceBullet"""
+        self.level.projectile_list.append(IceBullet(self.level, self.enemies_in_range[0],  self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_SLOW_TIME, self.__class__.START_BULLET_SLOW_AMOUNT, center_x = self.center_x, center_y = self.center_y))

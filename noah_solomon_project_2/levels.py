@@ -6,7 +6,7 @@ from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
 from arcade.csscolor import BLACK,RED, LIGHT_STEEL_BLUE, WHITE
-from sprites.towers import PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
+from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 from sprites.enemies import *
 
 def tile_to_cartesian(tile):
@@ -208,7 +208,7 @@ def draw_information(level:Level, x = 5, y = 625, font_size = 20):
 class BuyTowerPanels(UIAnchorWidget):
     """BuyTowerPanels manager"""
 
-    TOWERS = [SniperTurret, SimpleTurret, PierceTurret, SpeedTurret]
+    TOWERS = [SniperTurret, SimpleTurret, PierceTurret, SpeedTurret, IceTurret]
 
     def __init__(self, level: Level, **kwargs):
         self.buy_tower_panels = None

@@ -85,5 +85,18 @@ class PiercingBullet(Projectile):
             self.kill()
 
 
+class IceBullet(Projectile):
+    """Bullet can pierce <health> amount of enemies"""
+    def  __init__(self, game: Window, target: Sprite, speed: int, accuracy: int, time:int, amount:float, damage:int = 0,**kwargs):
+        self.time = time
+        self.amount = amount
+        super().__init__(game, target, "assets/projectiles/bullet.png", damage, speed, accuracy, **kwargs)
+
+    def on_enemy_collision(self, enemy: Sprite = None):
+        """Handles what happens when collides with specific enemy"""
+        enemy.slow_down(self.time, self.amount)
+        self.kill()
+
+
     
 

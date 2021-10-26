@@ -46,8 +46,7 @@ class IntroScreen(View):
         super().__init__(game)
         self.game = game
         self.levels = levels
-        self.manager = UIManager(game)
-        self.manager.enable()
+        self.manager = UIManager(self.game)
         self.create_play_buttons()
 
 
@@ -57,10 +56,12 @@ class IntroScreen(View):
         self.manager.draw()
 
     def on_show_view(self):
-
+        self.manager.enable()
         return super().on_show_view()
 
-    
+    def on_hide_view(self):
+        self.manager.disable()
+        return super().on_hide_view()
     
     
     def create_play_buttons(self):

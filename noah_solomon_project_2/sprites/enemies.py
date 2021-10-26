@@ -1,6 +1,7 @@
 from typing import List
 from arcade import load_texture, AnimationKeyframe
 from math import sqrt
+import arcade
 from arcade.sprite import AnimatedTimeBasedSprite, Sprite
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.projectiles import Projectile, Bullet
@@ -43,7 +44,7 @@ class Enemy(AnimatedTimeBasedSprite):
      def __init__(self, level, destinations: List[List], **kwargs):
          super().__init__(**kwargs)
          self.frames = self.__class__.WALK_ANIMATION
-         
+         self.slowing = False
          self.center_x = destinations[0][0]
          self.center_y = destinations[0][1]
          self.health = self.__class__.START_HEALTH
@@ -80,6 +81,24 @@ class Enemy(AnimatedTimeBasedSprite):
 
                self.projectiles_hit_by.append(projectile)
                projectile.on_enemy_collision(self)
+
+     def slow_down(self, time, amount):
+          """Enemy slows down for <time> seconds by going <amount> of usual speed"""
+          if(self.slowing):
+               arcade.unschedule(self.reset_speed)
+          
+          self.slowing = True
+          self.speed = self.__class__.START_SPEED * amount
+          arcade.schedule(self.reset_speed, time)
+
+
+
+     def reset_speed(self, dt):
+          """Bullet can call this when speed should be"""
+          self.speed = self.__class__.START_SPEED
+          self.slowing = False
+          arcade.unschedule(self.reset_speed)
+
 
                
 
