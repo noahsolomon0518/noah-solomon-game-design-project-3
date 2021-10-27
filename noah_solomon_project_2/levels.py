@@ -10,11 +10,10 @@ from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, 
 from sprites.enemies import *
 
 def tile_to_cartesian(tile):
-    return  (32*tile[0]+16, 32*tile[1]+16)
+    return  (32*tile[0]-16, 32*tile[1]-16)
 
 def tiles_to_cartesian(locations: List[List]):
     """Converts tile locations to cartesian locations"""
-    print(locations)
     return [tile_to_cartesian(location) for location in locations]
 
 
@@ -215,42 +214,56 @@ class NextWave(UIFlatButton):
         
     
 
-class TestLevel(Level):
+class Level1(Level):
     ENEMY_SPAWNS = [[{
         "enemies":[Toad],
         "probabilities":[1],
         "amount": 1,
         "interval": 1
     }]]
-    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
+    ENEMY_PATH = tiles_to_cartesian([(0,11),(12,11), (12,7), (23,7), (23,11), (34,11)])
     TILESHEET = "tilemaps/map1.json"
     START_MONEY = 5000
     START_HEALTH = 1
 
-class TestLevel2(Level):
+class Level2(Level):
     ENEMY_SPAWNS = [[{
         "enemies":[Toad],
         "probabilities":[1],
         "amount": 100,
         "interval": 1
     }]]
-    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
-    TILESHEET = "tilemaps/map1.json"
+    ENEMY_PATH = tiles_to_cartesian([(0,10),(5,10), (5,13), (10,13), (10,10),(14,10), (14,8),(22,8), (22,10),(34,10)])
+    TILESHEET = "tilemaps/map2.json"
     START_MONEY = 500
     START_HEALTH = 100
 
-class TestLevel3(Level):
+class Level3(Level):
     ENEMY_SPAWNS = [[{
         "enemies":[Toad, Bear],
         "probabilities":[0.5,0.5],
         "amount": 100,
         "interval": 0.5
     }]]
-    ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
-    TILESHEET = "tilemaps/map1.json"
+    ENEMY_PATH = tiles_to_cartesian([(0,10),(11,10),(11,16),(21,16),(21,11), (34,11)])
+    TILESHEET = "tilemaps/map3.json"
     START_MONEY = 5000
     START_HEALTH = 100
 
+    def on_draw(self):
+        arcade.start_render()
+        self.tilemap.sprite_lists["background2"].draw()
+        self.front_layer.draw()
+        self.back_layer.draw()
+        self.enemy_list.draw()
+        self.tower_list.draw()
+        self.projectile_list.draw()
+        self.gun_list.draw()
+        self.preview_tower.draw()
+        self.radius_list.draw()
+        self.manager.draw()
+        draw_information(self)
+  
 
 
 #GUI for levels is below

@@ -18,7 +18,7 @@ class MyGame(arcade.Window):
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 650
     SCREEN_TITLE = "Tower Defence"
-    LEVELS = [TestLevel, TestLevel2, TestLevel3]
+    LEVELS = [Level1, Level2, Level3]
 
     def __init__(self):
         super().__init__(self.__class__.SCREEN_WIDTH, self.__class__.SCREEN_HEIGHT, self.__class__.SCREEN_TITLE)
