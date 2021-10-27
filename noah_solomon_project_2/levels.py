@@ -165,6 +165,7 @@ class Level(View):
             self.preview_tower[0].on_mouse_press(x,y)
         
     def on_hide_view(self):
+        self.manager.disable()
         del self
     
     
@@ -173,10 +174,11 @@ class Level(View):
 
     def on_lose(self):
         """Displays lose screen"""
-        pass
+        self.game.show_view(self.game.lose_screen)
 
     def on_win(self):
         """Display winning screen"""
+        self.game.show_view(self.game.win_screen)
 
 
 class Quit(UIFlatButton):
@@ -217,13 +219,13 @@ class TestLevel(Level):
     ENEMY_SPAWNS = [[{
         "enemies":[Toad],
         "probabilities":[1],
-        "amount": 10,
+        "amount": 1,
         "interval": 1
     }]]
     ENEMY_PATH = tiles_to_cartesian([(-1,10),(11,10), (11,6), (22,6), (22,10), (31,10)])
     TILESHEET = "tilemaps/map1.json"
     START_MONEY = 5000
-    START_HEALTH = 100
+    START_HEALTH = 1
 
 class TestLevel2(Level):
     ENEMY_SPAWNS = [[{

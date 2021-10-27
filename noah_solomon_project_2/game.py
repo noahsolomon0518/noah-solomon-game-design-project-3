@@ -1,5 +1,5 @@
 from math import e
-from arcade.color import GRAY_BLUE
+from arcade.color import BABY_BLUE, GRAY_BLUE, RED_DEVIL
 from arcade.csscolor import CORNFLOWER_BLUE
 from arcade.sprite_list.sprite_list import SpriteList
 from sprites.towers import *
@@ -25,6 +25,8 @@ class MyGame(arcade.Window):
         arcade.set_background_color(CORNFLOWER_BLUE)
         self.levels = [level for level in self.__class__.LEVELS]
         self.intro_screen = IntroScreen(self, self.levels)
+        self.win_screen = WinScreen(self)
+        self.lose_screen = LoseScreen(self)
 
     def setup(self):
         self.mouse_motion_sprites = SpriteList()
@@ -56,6 +58,7 @@ class IntroScreen(View):
         self.manager.draw()
 
     def on_show_view(self):
+        arcade.set_background_color(CORNFLOWER_BLUE)
         self.manager.enable()
 
     def on_hide_view(self):
@@ -81,7 +84,46 @@ class LevelPlayButton(UIFlatButton):
         self.game.show_view(self.level(self.game))
         return super().on_click(event)
 
+
+class WinScreen(View):
+    def __init__(self, game: Window):
+        super().__init__(game)
+        self.game = game
+        self.manager = UIManager(self.game)
+
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("You win! Click to advance...", self.game.width/2,self.game.height/2, anchor_x="center", anchor_y="center", font_size=40, color = BLACK)
+
+    def on_show_view(self):
+        arcade.set_background_color(BABY_BLUE)
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        self.game.show_view(self.game.intro_screen)
+
+        
+
+class LoseScreen(View):
+    def __init__(self, game: Window):
+        super().__init__(game)
+        self.game = game
+        self.manager = UIManager(self.game)
+        
+
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("You lose. Click to advance...",  self.game.width/2,self.game.height/2, anchor_x="center", anchor_y="center", font_size=40, color = BLACK)
     
+
+    def on_show_view(self):
+        arcade.set_background_color(RED_DEVIL)
+
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        self.game.show_view(self.game.intro_screen)
+
 
 
 
