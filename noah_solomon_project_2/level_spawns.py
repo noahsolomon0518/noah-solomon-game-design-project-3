@@ -1,3 +1,4 @@
+from pyglet.window import MouseCursor
 from sprites.enemies import *
 
 level1_spawns = [
@@ -108,6 +109,109 @@ level2_spawns = [
             "probabilities":[1],
             "amount": 5,
             "interval": 3
+        }
+    ]
+]
+
+
+
+
+
+level3_spawns = [
+    [
+        {
+            "enemies":[Mushrooms],
+            "probabilities":[1],
+            "amount": 20,
+            "interval": 1
+        }
+    ],
+    [
+        {
+            "enemies":[Mushrooms, Toad],
+            "probabilities":[0.8,0.2],
+            "amount": 20,
+            "interval": 1.2
+        }
+    ],
+    [
+        {
+            "enemies":[Bear],
+            "probabilities":[1],
+            "amount": 1,
+            "interval": 0.1
+        },
+        {
+            "enemies":[Mushrooms],
+            "probabilities":[1],
+            "amount": 25,
+            "interval": 0.5
+        }
+    ],
+    [
+        {
+            "enemies":[Bear],
+            "probabilities":[1],
+            "amount": 8,
+            "interval": 3
+        },
+        {
+            "enemies":[Beholder],
+            "probabilities":[1],
+            "amount": 1,
+            "interval": 3
+        }
+    ],
+    [
+        {
+            "enemies":[Bear],
+            "probabilities":[1],
+            "amount": 5,
+            "interval": 0.5
+        },
+        {
+            "enemies":[Toad],
+            "probabilities":[1],
+            "amount": 20,
+            "interval": 0.5
+        }
+    ],
+    [
+        {
+            "enemies":[Bear],
+            "probabilities":[1],
+            "amount": 20,
+            "interval": 0.75
+        }
+    ],
+    [
+        {
+            "enemies":[Bear, Beholder, Toad],
+            "probabilities":[0.3,0.4,0.3],
+            "amount": 60,
+            "interval": 0.75
+        }
+    ],
+    [
+        {
+            "enemies":[Necromancer],
+            "probabilities":[1],
+            "amount": 5,
+            "interval": 1
+        },
+        {
+            "enemies":[Toad, Mushrooms, Bear],
+            "probabilities":[0.33,0.33,0.34],
+            "amount": 75,
+            "interval": 0.3
+        }
+    ],
+    [
+        {
+            "enemies":[Necromancer],
+            "probabilities":[1],
+            "amount": 10,
+            "interval": 0.75
         }
     ]
 ]

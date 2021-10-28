@@ -72,7 +72,7 @@ class Enemy(AnimatedTimeBasedSprite):
 
      def move(self, delta_time):
           """Moves in direction of destination at speed of self.speed"""
-          if(euclidean_distance((self.center_x, self.center_y), self.destinations[self.destination_number])<=self.speed):
+          if(euclidean_distance((self.center_x, self.center_y), self.destinations[self.destination_number])<=60 * delta_time * self.speed):
                self.get_next_direction_vector()
           self.center_x += 60 * delta_time * self.speed * self.direction_vector[0]
           self.center_y += 60 * delta_time * self.speed * self.direction_vector[1]
@@ -148,8 +148,8 @@ class Toad(Enemy):
 class Bear(Enemy):
      """Tank enemy lots of health and damage but very slow"""
      WALK_ANIMATION = extract_textures("Bear", 5, 8, 1)
-     START_HEALTH = 10
-     START_SPEED = 0.5
+     START_HEALTH = 13
+     START_SPEED = 0.6
      START_DAMAGE = 10
      WORTH = 15
 
@@ -157,7 +157,7 @@ class Bear(Enemy):
 class Beholder(Enemy):
      """Another tank enemy lots of health and damage and faster than bear"""
      WALK_ANIMATION = extract_textures("Beholder", 5, 8, 1)
-     START_HEALTH = 12
+     START_HEALTH = 18
      START_SPEED = 0.65
      START_DAMAGE = 10
      WORTH = 20
@@ -166,7 +166,7 @@ class Beholder(Enemy):
 class Necromancer(Enemy):
      """Moderate speed damage, health, and speed"""
      WALK_ANIMATION = extract_textures("Necromancer", 5, 8, 1)
-     START_HEALTH = 7
+     START_HEALTH = 15
      START_SPEED = 1
      START_DAMAGE = 7
      WORTH = 25
@@ -174,7 +174,7 @@ class Necromancer(Enemy):
 class Creature(Enemy):
      """Boss enemy"""
      WALK_ANIMATION = extract_textures("Creature", 5, 8, 1)
-     START_HEALTH = 30
+     START_HEALTH = 35
      START_SPEED = 0.9
      START_DAMAGE = 10
      WORTH = 50

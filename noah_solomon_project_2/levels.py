@@ -239,15 +239,10 @@ class Level2(Level):
     START_HEALTH = 25
 
 class Level3(Level):
-    ENEMY_SPAWNS = [[{
-        "enemies":[Toad, Bear],
-        "probabilities":[0.5,0.5],
-        "amount": 100,
-        "interval": 0.5
-    }]]
+    ENEMY_SPAWNS = level3_spawns
     ENEMY_PATH = tiles_to_cartesian([(0,10),(11,10),(11,16),(21,16),(21,11), (34,11)])
     TILESHEET = "tilemaps/map3.json"
-    START_MONEY = 5000
+    START_MONEY = 100
     START_HEALTH = 100
 
     def on_draw(self):
