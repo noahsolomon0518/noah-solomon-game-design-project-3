@@ -9,6 +9,10 @@ from arcade.csscolor import BLACK, BLUE,RED, LIGHT_STEEL_BLUE, WHITE
 from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 from sprites.enemies import *
 
+NEXT_WAVE = arcade.Sound("assets/sounds/next_wave.wav")
+TOWER_SELECT = arcade.Sound("assets/sounds/tower_select.wav")
+
+
 def tile_to_cartesian(tile):
     return  (32*tile[0]-16, 32*tile[1]-16)
 
@@ -203,14 +207,18 @@ class NextWave(UIFlatButton):
     def on_click(self, event: UIOnClickEvent):
         """If no current wave go to next wave"""
         if(not self.level.spawner.in_wave):
+            NEXT_WAVE.play()        
+            
             self.level.spawner.spawn_next_wave()
 
 
     def on_update(self, dt):
         if(self.level.spawner.in_wave):
             self._style["bg_color"] = color.GRAY
+            self.text = "In Wave"
         else:
             self._style["bg_color"] = BLUE
+            self.text = "Next Wave"
         
     
 
@@ -334,9 +342,11 @@ class BuyTowerPanel(UIBoxLayout):
         @button.event("on_click")
         def buy_on_click(click):
             if(self.net_parent.selected not in [self, None]):
+                TOWER_SELECT.play()
                 self.net_parent.selected.on_idle()
                 self.on_buy()
             elif(self.net_parent.selected == None):
+                TOWER_SELECT.play()
                 self.on_buy()
             elif(self.net_parent.selected == self):
                 self.on_idle()

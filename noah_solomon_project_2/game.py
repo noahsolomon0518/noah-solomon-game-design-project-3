@@ -7,7 +7,11 @@ from levels import *
 
 import arcade
 
-
+CLICK1 = arcade.Sound("assets/sounds/click1.wav")
+CLICK2 = arcade.Sound("assets/sounds/click2.wav")
+CLICK3 = arcade.Sound("assets/sounds/click3.wav")
+WIN = arcade.Sound("assets/sounds/win.wav")
+LOSE = arcade.Sound("assets/sounds/lose.wav")
 
 
 
@@ -81,6 +85,7 @@ class LevelPlayButton(UIFlatButton):
         
     
     def on_click(self, event: UIOnClickEvent):
+        CLICK1.play()
         self.game.show_view(self.level(self.game))
         return super().on_click(event)
 
@@ -97,6 +102,7 @@ class WinScreen(View):
         arcade.draw_text("You win! Click to advance...", self.game.width/2,self.game.height/2, anchor_x="center", anchor_y="center", font_size=40, color = BLACK)
 
     def on_show_view(self):
+        WIN.play()
         arcade.set_background_color(BABY_BLUE)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
@@ -118,6 +124,7 @@ class LoseScreen(View):
     
 
     def on_show_view(self):
+        LOSE.play()
         arcade.set_background_color(RED_DEVIL)
 
 

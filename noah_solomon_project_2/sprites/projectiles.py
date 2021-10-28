@@ -1,8 +1,10 @@
 from arcade import Sprite, Window, SpriteList
 from math import sqrt
+import arcade
 from arcade.scene import Scene
+from arcade.sound import Sound
 import numpy as np
-
+SHOT = Sound("assets/sounds/shot.mp3")
 
 def euclidean_distance(position_1, position_2):
     """Gets distance between 2 sprites."""
@@ -14,6 +16,7 @@ class Projectile(Sprite):
     """Abstracted projectile class"""
     def __init__(self, level: Scene, target: Sprite, filename: str, damage: int, speed: int, accuracy:int, **kwargs):
         super().__init__(filename = filename, **kwargs)
+        SHOT.play()
         self.level = level
         self.damage = damage
         self.speed = speed
