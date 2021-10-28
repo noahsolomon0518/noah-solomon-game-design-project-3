@@ -57,7 +57,7 @@ class Tower(Sprite):
         """Abstract attacking function that is sceduled when enemies in range. Supposed to use self.enemies_in_range"""
         pass
     
-
+    #Not used
     def upgrade(self):
         """Arbitary method to upgrade tower based on config. 
         Slightly hackish but will make things very convenient..."""
@@ -120,10 +120,10 @@ class Turret(Tower):
 
 
 class SimpleTurret(Turret):
-    COST = 100
+    COST = 25
     FILENAME = "assets/towers/simple_turret.png"
-    START_RANGE = 500
-    START_SPEED = 2
+    START_RANGE = 100
+    START_SPEED = 1
     START_BULLET = Bullet
     START_BULLET_DAMAGE = 1
     START_BULLET_SPEED = 15
@@ -131,23 +131,24 @@ class SimpleTurret(Turret):
 
 
 class SniperTurret(Turret):
-    COST = 100
+    COST = 75
     FILENAME = "assets/towers/speed_turret.png"
-    START_RANGE = 100
-    START_SPEED = 0.5
+    START_RANGE = 500
+    START_SPEED = 0.2
     START_BULLET = Bullet
     START_BULLET_DAMAGE = 10
     START_BULLET_SPEED = 15
     START_BULLET_ACCURACY = 2
 
 
+
 class PierceTurret(Turret):
     COST = 100
     FILENAME = "assets/towers/pierce_turret.png"
-    START_RANGE = 100
+    START_RANGE = 200
     START_SPEED = 1
     START_BULLET = Bullet
-    START_BULLET_DAMAGE = 20
+    START_BULLET_DAMAGE = 3
     START_BULLET_SPEED = 10
     START_BULLET_ACCURACY = 2
     START_BULLET_PIERCE = 3
@@ -157,27 +158,27 @@ class PierceTurret(Turret):
         self.level.projectile_list.append(PiercingBullet(self.level, self.enemies_in_range[0], self.bullet_damage, self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_PIERCE, center_x = self.center_x, center_y = self.center_y))
 
 class SpeedTurret(Turret):
-    COST = 100
+    COST = 150
     FILENAME = "assets/towers/speed_turret.png"
-    START_RANGE = 100
-    START_SPEED = 20
+    START_RANGE = 75
+    START_SPEED = 5
     START_BULLET = Bullet
-    START_BULLET_DAMAGE = 10
-    START_BULLET_SPEED = 3
-    START_BULLET_ACCURACY = 0.2
+    START_BULLET_DAMAGE = 1
+    START_BULLET_SPEED = 5
+    START_BULLET_ACCURACY = 0.65
 
 
 
 class IceTurret(Turret):
-    COST = 100
+    COST = 75
     FILENAME = "assets/towers/ice_turret.png"
-    START_RANGE = 100
+    START_RANGE = 150
     START_SPEED = 1
     START_BULLET = Bullet
     START_BULLET_DAMAGE = 0
     START_BULLET_SPEED = 10
     START_BULLET_ACCURACY = 2
-    START_BULLET_SLOW_TIME = 1
+    START_BULLET_SLOW_TIME = 3
     START_BULLET_SLOW_AMOUNT = 0.5
 
     def attack_enemy(self, dt):

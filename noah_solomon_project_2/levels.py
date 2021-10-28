@@ -8,6 +8,7 @@ from numpy.random import choice
 from arcade.csscolor import BLACK, BLUE,RED, LIGHT_STEEL_BLUE, WHITE
 from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
 from sprites.enemies import *
+from level_spawns import *
 
 NEXT_WAVE = arcade.Sound("assets/sounds/next_wave.wav")
 TOWER_SELECT = arcade.Sound("assets/sounds/tower_select.wav")
@@ -34,6 +35,7 @@ class Spawner:
 
     def spawn_next_wave(self):
         """Spawns wave <stage>. If no more waves signals for winning action"""
+        self.part = 0
         if(self.stage>=len(self.level_enemy_spawns)):
             self.level.on_win()
             return
@@ -223,28 +225,18 @@ class NextWave(UIFlatButton):
     
 
 class Level1(Level):
-    ENEMY_SPAWNS = [[{
-        "enemies":[Toad],
-        "probabilities":[1],
-        "amount": 1,
-        "interval": 1
-    }]]
+    ENEMY_SPAWNS = level1_spawns
     ENEMY_PATH = tiles_to_cartesian([(0,11),(12,11), (12,7), (23,7), (23,11), (34,11)])
     TILESHEET = "tilemaps/map1.json"
-    START_MONEY = 5000
-    START_HEALTH = 1
+    START_MONEY = 75
+    START_HEALTH = 20
 
 class Level2(Level):
-    ENEMY_SPAWNS = [[{
-        "enemies":[Toad],
-        "probabilities":[1],
-        "amount": 100,
-        "interval": 1
-    }]]
+    ENEMY_SPAWNS = level2_spawns
     ENEMY_PATH = tiles_to_cartesian([(0,10),(5,10), (5,13), (10,13), (10,10),(14,10), (14,8),(22,8), (22,10),(34,10)])
     TILESHEET = "tilemaps/map2.json"
-    START_MONEY = 500
-    START_HEALTH = 100
+    START_MONEY = 100
+    START_HEALTH = 25
 
 class Level3(Level):
     ENEMY_SPAWNS = [[{

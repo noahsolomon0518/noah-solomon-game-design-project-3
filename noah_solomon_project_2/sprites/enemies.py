@@ -135,7 +135,7 @@ class Mushrooms(Enemy):
      START_HEALTH = 1
      START_SPEED = 1.25
      START_DAMAGE = 1
-     WORTH = 1
+     WORTH = 2
 
 class Toad(Enemy):
      """Moderate speed but smallish damage and health"""
@@ -143,7 +143,7 @@ class Toad(Enemy):
      START_HEALTH = 2
      START_SPEED = 1
      START_DAMAGE = 2
-     WORTH = 3
+     WORTH = 5
 
 class Bear(Enemy):
      """Tank enemy lots of health and damage but very slow"""
@@ -151,4 +151,30 @@ class Bear(Enemy):
      START_HEALTH = 10
      START_SPEED = 0.5
      START_DAMAGE = 10
-     WORTH = 10
+     WORTH = 15
+
+
+class Beholder(Enemy):
+     """Another tank enemy lots of health and damage and faster than bear"""
+     WALK_ANIMATION = extract_textures("Beholder", 5, 8, 1)
+     START_HEALTH = 12
+     START_SPEED = 0.65
+     START_DAMAGE = 10
+     WORTH = 20
+
+
+class Necromancer(Enemy):
+     """Moderate speed damage, health, and speed"""
+     WALK_ANIMATION = extract_textures("Necromancer", 5, 8, 1)
+     START_HEALTH = 7
+     START_SPEED = 1
+     START_DAMAGE = 7
+     WORTH = 25
+
+class Creature(Enemy):
+     """Boss enemy"""
+     WALK_ANIMATION = extract_textures("Creature", 5, 8, 1)
+     START_HEALTH = 30
+     START_SPEED = 0.9
+     START_DAMAGE = 10
+     WORTH = 50
