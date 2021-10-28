@@ -1,6 +1,9 @@
 from pyglet.window import MouseCursor
 from sprites.enemies import *
 
+
+"""What enemies are spawned in each level, stage and part"""
+
 level1_spawns = [
     [
         {
@@ -211,6 +214,12 @@ level3_spawns = [
             "enemies":[Necromancer],
             "probabilities":[1],
             "amount": 10,
+            "interval": 0.75
+        },
+        {
+            "enemies":[Creature],
+            "probabilities":[1],
+            "amount": 2,
             "interval": 0.75
         }
     ]

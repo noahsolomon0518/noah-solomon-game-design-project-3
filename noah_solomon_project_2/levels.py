@@ -72,6 +72,7 @@ class Spawner:
 
 
 class Level(View):
+    """View for each level"""
     ENEMY_SPAWNS = None
     ENEMY_PATH = None
     TILESHEET = None
