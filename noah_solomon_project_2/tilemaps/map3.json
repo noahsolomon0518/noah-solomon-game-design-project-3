@@ -48,7 +48,7 @@
         {
          "columns":32,
          "firstgid":1,
-         "image":"..\/..\/..\/Downloads\/LPC_Terrain\/terrain.png",
+         "image":"tilemaps/terrain.png",
          "imageheight":1024,
          "imagewidth":1024,
          "margin":0,
