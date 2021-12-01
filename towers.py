@@ -5,8 +5,7 @@ from arcade import Window
 from math import cos, sin, sqrt
 from arcade.application import View
 from arcade.scene import Scene
-from sprites.config import UPGRADES
-from sprites.projectiles import Bullet, PiercingBullet, IceBullet
+from projectiles import Bullet, PiercingBullet, IceBullet
 import math
 
 
@@ -57,14 +56,6 @@ class Tower(Sprite):
         """Abstract attacking function that is sceduled when enemies in range. Supposed to use self.enemies_in_range"""
         pass
     
-    #Not used
-    def upgrade(self):
-        """Arbitary method to upgrade tower based on config. 
-        Slightly hackish but will make things very convenient..."""
-        if(self.upgrade_stage<5):
-            self.upgrade_stage += 1
-            for key, value in UPGRADES[self.__class__.__name__][self.upgrade_stage]:
-                self.__dict__[key] = value
 
 
     def on_update(self, delta_time):

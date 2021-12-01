@@ -1,5 +1,4 @@
-from pyglet.window import MouseCursor
-from sprites.enemies import *
+from enemies import *
 
 
 """What enemies are spawned in each level, stage and part"""
