@@ -13,14 +13,14 @@ Game
 
 Enemies
     enemy.py module controls logic behind enemies
-        Global Variables:
-            ENEMY_PATH_CONFIG - sets up the cordinates of the enemies path per map
+        
 
 
     Abstract Enemy class
         Variables:
             health - how much net damage can be applied before dying
             speed - pixels per second that it travels
+            path - path the enemy travels
             destination - Where enemy is trying to get to
             direction_vector - can be up = (0,1) down = (0,-1) right = (1,0) left = (-1,0)
             projectiles_hit_by - spritelist of all the projectiles hit by
@@ -40,6 +40,7 @@ Enemies
             set_direction_vector() - if enemy reaches destination set next destination and new direction vector
             on_collision_with_spritelist(list)
             on_death() - controls what happens when enemy dies
+            re_path(path) - path is changed and destination becomes first element in path list
 
 
 Levels
@@ -61,7 +62,6 @@ Levels
         Level(arcade.Scene):
             Class Variables:
             
-                ENEMY_PATH - the path that all enemies will travel
                 TILEMAP - tilemap that is to be used
                 STARTING_MONEY - amount of money that player starts with
                 SPAWN_SPEED - time interval of enemy spawning
@@ -73,7 +73,7 @@ Levels
                 stage - stage that player is on
                 enemy_ind - index of enemy that currently on in stage
                 passable_tiles - gets all tiles of TILE_TYPE 
-                enemy_path - the path of enemies when start at spawn point
+                spawn_enemy_path - the path of enemies when start at spawn point
 
 
 
@@ -83,7 +83,8 @@ Levels
                 spawn_next_wave() - spawns the next wave of enemies
                 spawn_next_enemy() - spawns next enemy in stage. Is sceduled
                 flood_fill() - finds tiles that are passable based on PASSABLE_TILE_TYPES. Records as TiledNode class
-                get_enemy_path(passable_tiles, start_poss, end_pos) - use A* on passable tiles to return 
+                get_enemy_path(passable_tiles, start_pos, end_pos) - use A* on passable tiles to return 
+                register_tower_placement() - Ensures that all enemies will have path to goal position. Get all potential starting points and ensure get_enemy_path doesnt return false
 
     GUI Classes:
         BuyTowerPanels - bottom panel that holds all the towers that can be bought
@@ -103,7 +104,7 @@ Levels
 
 
             Functions:
-                on_mouse_click() - places tower down if not on path and not pressing button and if have money
+                on_mouse_click() - places tower down if not on path and not pressing button and if have money and if path is validated for all enemy sprites
                 on_update() - move to x and y of mouse pointer
                 draw_range() - draws range of tower continuosly
                 

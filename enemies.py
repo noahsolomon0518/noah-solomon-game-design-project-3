@@ -4,7 +4,7 @@ from math import sqrt
 import arcade
 from arcade.sprite import AnimatedTimeBasedSprite, Sprite
 from arcade.sprite_list.sprite_list import SpriteList
-from sprites.projectiles import Projectile, Bullet
+from projectiles import Projectile
 
 
 def euclidean_distance(pos_1: List, pos_2:List):
@@ -19,12 +19,7 @@ def euclidean_distance(pos_1: List, pos_2:List):
 
 
 
-ENEMY_PATH_CONFIG = {
-     """If cord is (0,32) then destination will be middle so (16, 48). First cord is enemy starting place"""
-     "map_1" :[
-          (None, None)
-     ]
-}
+
 
 def extract_textures(name, col_start, col_end, row, sprite_size = 16, duration = 200):
      """Used to partition out animation key frames"""

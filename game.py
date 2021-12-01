@@ -2,7 +2,7 @@ from math import e
 from arcade.color import BABY_BLUE, GRAY_BLUE, RED_DEVIL
 from arcade.csscolor import CORNFLOWER_BLUE
 from arcade.sprite_list.sprite_list import SpriteList
-from sprites.towers import *
+from towers import *
 from levels import *
 
 import arcade

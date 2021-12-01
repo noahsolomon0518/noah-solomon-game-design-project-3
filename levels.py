@@ -6,8 +6,8 @@ from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
 from arcade.csscolor import BLACK, BLUE,RED, LIGHT_STEEL_BLUE, WHITE
-from sprites.towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
-from sprites.enemies import *
+from towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Turret
+from enemies import *
 from level_spawns import *
 
 NEXT_WAVE = arcade.Sound("assets/sounds/next_wave.wav")
@@ -130,7 +130,6 @@ class Level(View):
         self.tower_list.on_update(delta_time)
         self.preview_tower.update()
 
-
     def on_draw(self):
         arcade.start_render()
         self.back_layer.draw()
@@ -143,9 +142,7 @@ class Level(View):
         self.radius_list.draw()
         self.manager.draw()
         draw_information(self)
-
  
-
     def handle_enemy_projectile_collisions(self):
         """All collisions between bullet and enemy handled here"""
         enemy_projectile_collisions = [enemy.collides_with_list(self.projectile_list) for enemy in self.enemy_list]
@@ -158,7 +155,6 @@ class Level(View):
     def show_preview_tower(self, tower):
         """Shows range of tower"""
         self.preview_tower.append(tower)
-
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         """Move preview tower"""
@@ -174,7 +170,6 @@ class Level(View):
         self.manager.disable()
         del self
     
-    
     def on_show_view(self):
         self.setup()
 
@@ -185,7 +180,6 @@ class Level(View):
     def on_win(self):
         """Display winning screen"""
         self.game.show_view(self.game.win_screen)
-
 
 class Quit(UIFlatButton):
 
@@ -199,8 +193,6 @@ class Quit(UIFlatButton):
         print(self.game.current_view)
         self.game.show_view(self.game.intro_screen)
         
-    
-    
 class NextWave(UIFlatButton):
 
     def __init__(self, level: Level):
@@ -213,7 +205,6 @@ class NextWave(UIFlatButton):
             NEXT_WAVE.play()        
             
             self.level.spawner.spawn_next_wave()
-
 
     def on_update(self, dt):
         if(self.level.spawner.in_wave):
