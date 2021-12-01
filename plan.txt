@@ -53,20 +53,27 @@ Levels
             Pause/quit button
         Spawn enemies
         Allow for buying towers
+        Floodfill tile nodes registering enemy potential paths
+
+
 
     Classes:
         Level(arcade.Scene):
             Class Variables:
+            
                 ENEMY_PATH - the path that all enemies will travel
                 TILEMAP - tilemap that is to be used
                 STARTING_MONEY - amount of money that player starts with
                 SPAWN_SPEED - time interval of enemy spawning
                 ENEMY_SET - ordered enemy set that is to be spawned split up by stage
+                PASSABLE_TILES - what tiles enemies can travel on/where towers can be be placed
 
             Instance variables:
                 health - health that player has before loses
                 stage - stage that player is on
                 enemy_ind - index of enemy that currently on in stage
+                passable_tiles - gets all tiles of TILE_TYPE 
+                enemy_path - the path of enemies when start at spawn point
 
 
 
@@ -75,6 +82,8 @@ Levels
                 draw_gui() - draws GUI
                 spawn_next_wave() - spawns the next wave of enemies
                 spawn_next_enemy() - spawns next enemy in stage. Is sceduled
+                flood_fill() - finds tiles that are passable based on PASSABLE_TILE_TYPES. Records as TiledNode class
+                get_enemy_path(passable_tiles, start_poss, end_pos) - use A* on passable tiles to return 
 
     GUI Classes:
         BuyTowerPanels - bottom panel that holds all the towers that can be bought
@@ -118,3 +127,7 @@ Game
 
             functions 
                 create_play_buttons() - creates a play button for each level
+
+
+
+    
