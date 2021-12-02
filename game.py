@@ -19,8 +19,8 @@ class MyGame(arcade.Window):
     """
     Main application class.
     """
-    SCREEN_WIDTH = 1000
-    SCREEN_HEIGHT = 650
+    SCREEN_WIDTH = 1050
+    SCREEN_HEIGHT = 645
     SCREEN_TITLE = "Tower Defence"
     LEVELS = [Level1, Level2, Level3]
 

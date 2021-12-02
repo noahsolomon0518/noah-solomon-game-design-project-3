@@ -37,18 +37,19 @@ class Enemy(AnimatedTimeBasedSprite):
      START_DAMAGE = None
      WORTH = None
 
-     def __init__(self, level, destinations: List[List], **kwargs):
+     def __init__(self, level, **kwargs):
          super().__init__(**kwargs)
          self.level = level
          self.frames = self.__class__.WALK_ANIMATION
          self.slowing = False
-         self.center_x = destinations[0][0]
-         self.center_y = destinations[0][1]
+         self.destinations = [(pos[0]*32 + 16, pos[1]*32 + 16) for pos in self.level.find_shortest_path(level.ENEMY_START_POS, level.ENEMY_END_POS)]
+         self.center_x = self.destinations[0][0]
+         self.center_y = self.destinations[0][1]
+         
          self.health = self.__class__.START_HEALTH
          self.speed = self.__class__.START_SPEED
          self.damage = self.__class__.START_DAMAGE
          self.destination_number = 0
-         self.destinations = destinations
          self.projectiles_hit_by = SpriteList()
          self.direction_vector = (0,0)
      

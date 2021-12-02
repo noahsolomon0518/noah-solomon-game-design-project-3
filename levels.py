@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Dict, List, Union
 import arcade
 from arcade import sprite
 from arcade import color
@@ -10,10 +10,13 @@ from towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTur
 from enemies import *
 from level_spawns import *
 import numpy as np
+from queue import PriorityQueue
 
 NEXT_WAVE = arcade.Sound("assets/sounds/next_wave.wav")
 TOWER_SELECT = arcade.Sound("assets/sounds/tower_select.wav")
 
+def tile_manhattan_distance(pos1, pos2):
+    return abs(pos2[0]-pos1[0]) + abs(pos2[1]-pos1[1])
 
 def tile_to_cartesian(tile):
     return (32*tile[0]-16, 32*tile[1]-16)
@@ -32,9 +35,8 @@ def path_find(valid_tiles, start_pos, end_pos):
 class Spawner:
     """Controls spawning of enemies based on level_enemy_spawns config that is passed to it. This is held in Level"""
 
-    def __init__(self, level, level_enemy_spawns, level_enemy_path):
+    def __init__(self, level, level_enemy_spawns):
         self.level = level
-        self.level_enemy_path = level_enemy_path
         self.level_enemy_spawns = level_enemy_spawns
         self.stage = 0
         self.part = 0
@@ -57,7 +59,7 @@ class Spawner:
         enemy_choices = self.level_enemy_spawns[self.stage][self.part]["enemies"]
         probabilities = self.level_enemy_spawns[self.stage][self.part]["probabilities"]
         enemy = choice(enemy_choices, p=probabilities)(
-            self.level, self.level_enemy_path)
+            self.level)
         self.level.enemy_list.append(enemy)
 
         self.amount += 1
@@ -81,17 +83,14 @@ class Spawner:
         del self
 
 
-class PassableTiles:
-    """Used in path finding"""
 
-    def __init__(self, neighbors) -> None:
-        pass
 
 
 class Level(View):
     """View for each level"""
     ENEMY_SPAWNS = None
-    ENEMY_SPAWNPOINT = None
+    ENEMY_START_POS = None
+    ENEMY_END_POS = None
     ENEMY_DESINTATIONS = None
     TILESHEET = None
     START_MONEY = None
@@ -119,6 +118,7 @@ class Level(View):
 
     def setup(self):
         self.front_layer = SpriteList()
+        self.middle_layer = SpriteList()
         self.back_layer = SpriteList()
         self.radius_list = SpriteList()
         self.enemy_list = SpriteList(use_spatial_hash=False)
@@ -134,15 +134,17 @@ class Level(View):
         buy_tower_panel_manager = BuyTowerPanels(self)
         self.back_layer = self.tilemap.sprite_lists["background"]
         self.front_layer = self.tilemap.sprite_lists["front"]
+        self.middle_layer = self.tilemap.sprite_lists["middle"]
         self.manager.enable()
         self.manager.add(widget=Quit(self.game))
         self.manager.add(UIAnchorWidget(child=NextWave(
             self), anchor_x="right", anchor_y="bottom"))
         self.manager.add(buy_tower_panel_manager)
         self.spawner = Spawner(
-            self, self.__class__.ENEMY_SPAWNS, self.__class__.ENEMY_PATH)
+            self, self.__class__.ENEMY_SPAWNS)
         self.buy_tower_panels.extend(buy_tower_panel_manager.buy_tower_panels)
         self._create_flood_fill_graph()
+        self.spawn_enemy_path = self.find_shortest_path(self.__class__.ENEMY_START_POS, self.__class__.ENEMY_END_POS)
 
     def on_update(self, delta_time) -> None:
         self.handle_enemy_projectile_collisions()
@@ -154,6 +156,7 @@ class Level(View):
     def on_draw(self):
         arcade.start_render()
         self.back_layer.draw()
+        self.middle_layer.draw()
         self.front_layer.draw()
         self.enemy_list.draw()
         self.tower_list.draw()
@@ -203,7 +206,7 @@ class Level(View):
         """Display winning screen"""
         self.game.show_view(self.game.win_screen)
 
-    def _create_flood_fill_graph(self) -> List[PassableTiles]:
+    def _create_flood_fill_graph(self):
         """Find passable tiles"""
         width = self.game.width//32 + 2
         height = self.game.height//32 + 2
@@ -213,8 +216,7 @@ class Level(View):
                        int((tile.center_y-16)//32)] = 1
         self.tile_array = tile_array
         self._flood_fill_pass(
-            self.__class__.ENEMY_SPAWNPOINT[0], self.__class__.ENEMY_SPAWNPOINT[1])
-        print(self.passable_tile_graph)
+            self.__class__.ENEMY_START_POS[0], self.__class__.ENEMY_START_POS[1])
 
     def _flood_fill_pass(self, x_tile, y_tile):
         """Adds valid points to self.passable_tile_graph"""
@@ -233,6 +235,43 @@ class Level(View):
             if(y_tile + 1 < len(self.tile_array[0])and self.tile_array[x_tile, y_tile+1] == 0):
                 self.passable_tile_graph[tile_key].append((x_tile, y_tile+1))
                 self._flood_fill_pass(x_tile, y_tile+1)
+    
+    def find_shortest_path(self, start_pos, end_pos) -> List[List]:
+        """Based on graph uses A* to find shortest path and returns it """
+        graph = self.passable_tile_graph
+        open_set = PriorityQueue()
+        open_set.put((0, start_pos))
+        came_from = {}
+        g_score = {node: float("inf") for node in graph.keys()}
+        g_score[start_pos] = 0
+        f_score = {node: float("inf") for node in graph.keys()}
+        f_score[start_pos] = tile_manhattan_distance(start_pos, end_pos)
+        open_set_hash = set()
+        open_set_hash.add(start_pos)
+        while not open_set.empty():
+            current =  open_set.get()[1]
+            open_set_hash.remove(current)
+            if(current == end_pos):
+                total_path = [current]
+                while current in came_from.keys():
+                    current = came_from[current]
+                    total_path.insert(0, current)
+                return total_path
+
+            for neighbor in graph[current]:
+                temp_g_score = g_score[current] + 1
+                if temp_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = temp_g_score
+                    f_score[neighbor] = temp_g_score + tile_manhattan_distance(neighbor, end_pos)
+                    if(neighbor not in open_set_hash):
+                        open_set.put((f_score, neighbor))
+                        open_set_hash.add(neighbor)
+                        
+                    
+        return False
+
+
 
 
 class Quit(UIFlatButton):
@@ -244,7 +283,6 @@ class Quit(UIFlatButton):
     def on_click(self, event: UIOnClickEvent):
         """Quits to  main screen"""
         self.game.hide_view()
-        print(self.game.current_view)
         self.game.show_view(self.game.intro_screen)
 
 
@@ -272,9 +310,8 @@ class NextWave(UIFlatButton):
 
 class Level1(Level):
     ENEMY_SPAWNS = level1_spawns
-    ENEMY_SPAWNPOINT = (0,6)
-    ENEMY_PATH = tiles_to_cartesian(
-        [(0, 11), (12, 11), (12, 7), (23, 7), (23, 11), (34, 11)])
+    ENEMY_START_POS = (0,10)
+    ENEMY_END_POS = (32,10)
     TILESHEET = "tilemaps/map1.json"
     START_MONEY = 75
     START_HEALTH = 20
