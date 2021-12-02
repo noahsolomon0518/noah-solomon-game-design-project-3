@@ -42,7 +42,7 @@ class Enemy(AnimatedTimeBasedSprite):
          self.level = level
          self.frames = self.__class__.WALK_ANIMATION
          self.slowing = False
-         self.destinations = [(pos[0]*32 + 16, pos[1]*32 + 16) for pos in self.level.find_shortest_path(level.ENEMY_START_POS, level.ENEMY_END_POS)]
+         self.destinations = self.level.find_shortest_path(level.ENEMY_START_POS, level.ENEMY_END_POS)
          self.center_x = self.destinations[0][0]
          self.center_y = self.destinations[0][1]
          
@@ -98,7 +98,10 @@ class Enemy(AnimatedTimeBasedSprite):
           arcade.unschedule(self.reset_speed)
 
 
-               
+     def re_path(self):
+          self.destination_number = 0
+          self.destinations = self.level.find_shortest_path((int((self.center_x-16)//32), int((self.center_y-16)//32)), self.level.ENEMY_END_POS) or []
+          self.get_next_direction_vector()
 
 
      def on_reach_last_destination(self):

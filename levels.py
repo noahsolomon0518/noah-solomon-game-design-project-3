@@ -32,6 +32,16 @@ def path_find(valid_tiles, start_pos, end_pos):
     pass
 
 
+def remove_node(graph, point):
+    """Removes point and all connections from graph"""
+    for neighbor in graph[point]:
+        print(graph[neighbor])
+        graph[neighbor].remove(point)
+        print(graph[neighbor])
+    del graph[point]
+
+        
+
 class Spawner:
     """Controls spawning of enemies based on level_enemy_spawns config that is passed to it. This is held in Level"""
 
@@ -256,7 +266,7 @@ class Level(View):
                 while current in came_from.keys():
                     current = came_from[current]
                     total_path.insert(0, current)
-                return total_path
+                return [(pos[0]*32 + 16, pos[1]*32 + 16) for pos in total_path]    #Returns (x,y) cords
 
             for neighbor in graph[current]:
                 temp_g_score = g_score[current] + 1
@@ -461,6 +471,11 @@ class PreviewTower(sprite.Sprite):
         self.level.tower_list.append(self.tower(
             self.level, center_x=self.center_x, center_y=self.center_y))
         self.level.money -= self.cost
+        remove_node(self.level.passable_tile_graph, (int((self.center_x-16)//32), int((self.center_y-16)//32)))
+        for enemy in self.level.enemy_list:
+            enemy.re_path()
+        self.level.spawn_enemy_path = self.level.find_shortest_path(self.level.__class__.ENEMY_START_POS, self.level.__class__.ENEMY_END_POS)
+
 
     def kill(self):
         self.level.radius_list[0].kill()
