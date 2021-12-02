@@ -67,6 +67,8 @@ Levels
                 SPAWN_SPEED - time interval of enemy spawning
                 ENEMY_SET - ordered enemy set that is to be spawned split up by stage
                 PASSABLE_TILES - what tiles enemies can travel on/where towers can be be placed
+                ENEMY_SPAWN - cordinate where enemies will spawn 
+                ENEMY_DESTINATION - cordinate where enemies will travel to 
 
             Instance variables:
                 health - health that player has before loses
@@ -82,9 +84,16 @@ Levels
                 draw_gui() - draws GUI
                 spawn_next_wave() - spawns the next wave of enemies
                 spawn_next_enemy() - spawns next enemy in stage. Is sceduled
-                flood_fill() - finds tiles that are passable based on PASSABLE_TILE_TYPES. Records as TiledNode class
+                flood_fill() - finds tiles that are passable based on PASSABLE_TILE_TYPES. Records as PassableTile class
                 get_enemy_path(passable_tiles, start_pos, end_pos) - use A* on passable tiles to return 
                 register_tower_placement() - Ensures that all enemies will have path to goal position. Get all potential starting points and ensure get_enemy_path doesnt return false
+
+        PassableTile:
+            Instance Variables:
+                neighbors - list of PassableTile's neighbors
+                x_tile_cord - x cord  in terms of tiles
+                y_tile_cord - y cord in terms of tiles
+                sprite_pointer - points to corresponding sprite tile
 
     GUI Classes:
         BuyTowerPanels - bottom panel that holds all the towers that can be bought
