@@ -110,10 +110,15 @@ class Enemy(AnimatedTimeBasedSprite):
           self.destination_number = 0
           x_tile = round((self.center_x-16)/32)
           y_tile = round((self.center_y-16)/32)
-          print((x_tile, y_tile))
           self.destinations = self.level.find_shortest_path((x_tile, y_tile), self.level.ENEMY_END_POS) or []
           self.get_next_direction_vector()
 
+     def check_if_valid_tower_placement(self, graph):
+          x_tile = round((self.center_x-16)/32)
+          y_tile = round((self.center_y-16)/32)
+          if(self.level.find_shortest_path((x_tile, y_tile),self.level.ENEMY_END_POS, graph = graph)):
+               return True
+          return False
 
      def on_reach_last_destination(self):
           """When the enemy reaches the last destination reduce castles health by 10 ect..."""

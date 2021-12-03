@@ -11,6 +11,7 @@ from enemies import *
 from level_spawns import *
 import numpy as np
 from queue import PriorityQueue
+import copy
 
 NEXT_WAVE = arcade.Sound("assets/sounds/next_wave.wav")
 TOWER_SELECT = arcade.Sound("assets/sounds/tower_select.wav")
@@ -35,11 +36,26 @@ def path_find(valid_tiles, start_pos, end_pos):
 def remove_node(graph, point):
     """Removes point and all connections from graph"""
     for neighbor in graph[point]:
+        print(neighbor, point)
         print(graph[neighbor])
         graph[neighbor].remove(point)
-        print(graph[neighbor])
     del graph[point]
 
+def insert_node(graph, point):
+    graph[point] = []
+    keys = graph.keys()
+    if((point[0], point[1]+1) in keys):
+        graph[point].append((point[0], point[1]+1))
+        graph[(point[0], point[1]+1)].append(point)
+    if((point[0], point[1]-1) in keys):
+        graph[point].append((point[0], point[1]-1))
+        graph[(point[0], point[1]-1)].append(point)
+    if((point[0]+1, point[1]) in keys):
+        graph[point].append((point[0]+1, point[1]))
+        graph[(point[0]+1, point[1])].append(point)
+    if((point[0]-1, point[1]) in keys):
+        graph[point].append((point[0]-1, point[1]))
+        graph[(point[0]-1, point[1])].append(point)
         
 
 class Spawner:
@@ -64,7 +80,6 @@ class Spawner:
 
     def spawn_next_enemy(self, dt=None):
         """Spawns enemies according to stage and part given"""
-
         enemy_choices = self.level_enemy_spawns[self.stage][self.part]["enemies"]
         probabilities = self.level_enemy_spawns[self.stage][self.part]["probabilities"]
         enemy = choice(enemy_choices, p=probabilities)(
@@ -75,7 +90,6 @@ class Spawner:
 
         if(self.amount >= self.level_enemy_spawns[self.stage][self.part]["amount"]):
             if(self.part >= len(self.level_enemy_spawns[self.stage]) - 1):
-
                 self.amount = 0
                 self.stage += 1
                 arcade.unschedule(self.spawn_next_enemy)
@@ -245,9 +259,10 @@ class Level(View):
                 self.passable_tile_graph[tile_key].append((x_tile, y_tile+1))
                 self._flood_fill_pass(x_tile, y_tile+1)
     
-    def find_shortest_path(self, start_pos, end_pos) -> List[List]:
+    def find_shortest_path(self, start_pos, end_pos, graph = None) -> List[List]:
         """Based on graph uses A* to find shortest path and returns it """
-        graph = self.passable_tile_graph
+        
+        graph = graph or self.passable_tile_graph
         open_set = PriorityQueue()
         open_set.put((0, start_pos))
         came_from = {}
@@ -305,7 +320,6 @@ class NextWave(UIFlatButton):
         """If no current wave go to next wave"""
         if(not self.level.spawner.in_wave):
             NEXT_WAVE.play()
-
             self.level.spawner.spawn_next_wave()
 
     def on_update(self, dt):
@@ -316,7 +330,6 @@ class NextWave(UIFlatButton):
             self._style["bg_color"] = BLUE
             self.text = "Next Wave"
 
-
 class Level1(Level):
     ENEMY_SPAWNS = level1_spawns
     ENEMY_START_POS = (0,10)
@@ -324,7 +337,6 @@ class Level1(Level):
     TILESHEET = "tilemaps/map1.json"
     START_MONEY = 75
     START_HEALTH = 20
-
 
 class Level2(Level):
     ENEMY_SPAWNS = level2_spawns
@@ -357,7 +369,6 @@ class Level3(Level):
         self.manager.draw()
         draw_information(self)
 
-
 # GUI for levels is below
 def draw_information(level: Level, x=5, y=625, font_size=20):
     """Draws score, money and stage"""
@@ -366,7 +377,6 @@ def draw_information(level: Level, x=5, y=625, font_size=20):
                      y - 1.5*font_size, font_size=font_size)
     arcade.draw_text(f"Stage: {level.stage}", x, y -
                      3*font_size, font_size=font_size)
-
 
 class BuyTowerPanels(UIAnchorWidget):
     """BuyTowerPanels manager"""
@@ -387,10 +397,8 @@ class BuyTowerPanels(UIAnchorWidget):
     def get_buy_tower_panels(self):
         return [BuyTowerPanel(self.level, self, tower).with_space_around(bg_color=LIGHT_STEEL_BLUE).with_border().with_space_around(10, 10, 20, 20) for tower in self.__class__.TOWERS]
 
-
 class BuyTowerPanel(UIBoxLayout):
     """One tower panel"""
-
     def __init__(self, level: Level, net_parent: BuyTowerPanels, tower: Tower):
         self.net_parent = net_parent
         self.level = level
@@ -423,7 +431,6 @@ class BuyTowerPanel(UIBoxLayout):
         self.buy = self.get_button(text="BUY", height=20, width=50)
         self.preview_tower.kill()
         self.preview_tower = None
-
         self.children = [self.label, self.sprite_preview, self.cost, self.buy]
 
     def get_button(self, **kwargs):
@@ -441,7 +448,6 @@ class BuyTowerPanel(UIBoxLayout):
             elif(self.net_parent.selected == self):
                 self.on_idle()
         return button
-
 
 class PreviewTower(sprite.Sprite):
     """Mouse click and motion stuff handled by net_parent"""
@@ -467,6 +473,9 @@ class PreviewTower(sprite.Sprite):
         if(self.level.radius_list[0].color == RED):
             return
 
+        if(not self.validate_tower_placement_path_finding()):
+            return
+
         self.level.tower_list.append(self.tower(
             self.level, center_x=self.center_x, center_y=self.center_y))
         self.level.money -= self.cost
@@ -475,6 +484,16 @@ class PreviewTower(sprite.Sprite):
             enemy.re_path()
         self.level.spawn_enemy_path = self.level.find_shortest_path(self.level.__class__.ENEMY_START_POS, self.level.__class__.ENEMY_END_POS)
 
+    def validate_tower_placement_path_finding(self):
+        """If tower blocks enemy from path return false."""
+        temp_graph = copy.deepcopy(self.level.passable_tile_graph)
+        remove_node(temp_graph, (int((self.center_x-16)//32), int((self.center_y-16)//32)))
+        for enemy in self.level.enemy_list:
+            if not enemy.check_if_valid_tower_placement(temp_graph):
+                return False
+        if(not self.level.find_shortest_path(self.level.__class__.ENEMY_START_POS, self.level.__class__.ENEMY_END_POS, temp_graph)):
+            return False
+        return True
 
     def kill(self):
         self.level.radius_list[0].kill()
@@ -482,7 +501,7 @@ class PreviewTower(sprite.Sprite):
 
     def on_mouse_motion(self, x, y):
         """Goes to mouse pointer"""
-        collisions = self.collides_with_list(self.level.front_layer)
+        collisions = self.collides_with_list(self.level.front_layer) + self.collides_with_list(self.level.tower_list)
         if(collisions):
             self.level.radius_list[0].color = RED
         else:
