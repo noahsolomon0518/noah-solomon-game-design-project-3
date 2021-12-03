@@ -45,7 +45,7 @@ class Enemy(AnimatedTimeBasedSprite):
          self.destinations = self.level.find_shortest_path(level.ENEMY_START_POS, level.ENEMY_END_POS)
          self.center_x = self.destinations[0][0]
          self.center_y = self.destinations[0][1]
-         
+         self.last_distance_from_destination = float("inf")
          self.health = self.__class__.START_HEALTH
          self.speed = self.__class__.START_SPEED
          self.damage = self.__class__.START_DAMAGE
@@ -68,10 +68,18 @@ class Enemy(AnimatedTimeBasedSprite):
 
      def move(self, delta_time):
           """Moves in direction of destination at speed of self.speed"""
-          if(euclidean_distance((self.center_x, self.center_y), self.destinations[self.destination_number])<=60 * delta_time * self.speed):
+          current_distance_from_destination = self.get_distance_from_destination()
+          if(self.last_distance_from_destination <= current_distance_from_destination):
+               #then moving away
                self.get_next_direction_vector()
+               self.last_distance_from_destination = float("inf")
+          else:
+               self.last_distance_from_destination = current_distance_from_destination
           self.center_x += 60 * delta_time * self.speed * self.direction_vector[0]
           self.center_y += 60 * delta_time * self.speed * self.direction_vector[1]
+
+     def get_distance_from_destination(self):
+          return euclidean_distance((self.center_x, self.center_y), self.destinations[self.destination_number])
 
      def on_collision_with_projectile(self, projectile: Projectile):
           """Controls what happens when coliides with specific projectile. Collision handled through game. Can only be hit by projectile once"""
@@ -100,7 +108,10 @@ class Enemy(AnimatedTimeBasedSprite):
 
      def re_path(self):
           self.destination_number = 0
-          self.destinations = self.level.find_shortest_path((int((self.center_x-16)//32), int((self.center_y-16)//32)), self.level.ENEMY_END_POS) or []
+          x_tile = round((self.center_x-16)/32)
+          y_tile = round((self.center_y-16)/32)
+          print((x_tile, y_tile))
+          self.destinations = self.level.find_shortest_path((x_tile, y_tile), self.level.ENEMY_END_POS) or []
           self.get_next_direction_vector()
 
 

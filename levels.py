@@ -44,7 +44,6 @@ def remove_node(graph, point):
 
 class Spawner:
     """Controls spawning of enemies based on level_enemy_spawns config that is passed to it. This is held in Level"""
-
     def __init__(self, level, level_enemy_spawns):
         self.level = level
         self.level_enemy_spawns = level_enemy_spawns
