@@ -6,7 +6,7 @@ from arcade.application import View, Window
 from arcade.gui import *
 from numpy.random import choice
 from arcade.csscolor import BLACK, BLUE, RED, LIGHT_STEEL_BLUE, WHITE
-from towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower
+from towers import IceTurret, PierceTurret, SimpleTurret, SniperTurret, SpeedTurret, Tower, Wall
 from enemies import *
 from level_spawns import *
 import numpy as np
@@ -28,16 +28,12 @@ def tiles_to_cartesian(locations: List[List]):
     return [tile_to_cartesian(location) for location in locations]
 
 
-def path_find(valid_tiles, start_pos, end_pos):
-    """Uses A* to find path from start_pos to end_pos"""
-    pass
+
 
 
 def remove_node(graph, point):
     """Removes point and all connections from graph"""
     for neighbor in graph[point]:
-        print(neighbor, point)
-        print(graph[neighbor])
         graph[neighbor].remove(point)
     del graph[point]
 
@@ -340,8 +336,8 @@ class Level1(Level):
 
 class Level2(Level):
     ENEMY_SPAWNS = level2_spawns
-    ENEMY_PATH = tiles_to_cartesian(
-        [(0, 10), (5, 10), (5, 13), (10, 13), (10, 10), (14, 10), (14, 8), (22, 8), (22, 10), (34, 10)])
+    ENEMY_START_POS = (0,10)
+    ENEMY_END_POS = (32,15)
     TILESHEET = "tilemaps/map2.json"
     START_MONEY = 100
     START_HEALTH = 25
@@ -349,25 +345,13 @@ class Level2(Level):
 
 class Level3(Level):
     ENEMY_SPAWNS = level3_spawns
-    ENEMY_PATH = tiles_to_cartesian(
-        [(0, 10), (11, 10), (11, 16), (21, 16), (21, 11), (34, 11)])
+    ENEMY_START_POS = (0,11)
+    ENEMY_END_POS = (32,11)
     TILESHEET = "tilemaps/map3.json"
     START_MONEY = 100
     START_HEALTH = 100
 
-    def on_draw(self):
-        arcade.start_render()
-        self.tilemap.sprite_lists["background2"].draw()
-        self.front_layer.draw()
-        self.back_layer.draw()
-        self.enemy_list.draw()
-        self.tower_list.draw()
-        self.projectile_list.draw()
-        self.gun_list.draw()
-        self.preview_tower.draw()
-        self.radius_list.draw()
-        self.manager.draw()
-        draw_information(self)
+   
 
 # GUI for levels is below
 def draw_information(level: Level, x=5, y=625, font_size=20):
@@ -381,7 +365,7 @@ def draw_information(level: Level, x=5, y=625, font_size=20):
 class BuyTowerPanels(UIAnchorWidget):
     """BuyTowerPanels manager"""
 
-    TOWERS = [SniperTurret, SimpleTurret, PierceTurret, SpeedTurret, IceTurret]
+    TOWERS = [Wall, SniperTurret, SimpleTurret, PierceTurret, SpeedTurret, IceTurret]
 
     def __init__(self, level: Level, **kwargs):
         self.buy_tower_panels = None

@@ -175,3 +175,11 @@ class IceTurret(Turret):
     def attack_enemy(self, dt):
         """Creates instance of PierceBullet"""
         self.level.projectile_list.append(IceBullet(self.level, self.enemies_in_range[0],  self.bullet_speed, self.bullet_accuracy, self.__class__.START_BULLET_SLOW_TIME, self.__class__.START_BULLET_SLOW_AMOUNT, center_x = self.center_x, center_y = self.center_y))
+
+
+class Wall(Sprite):
+    COST = 5
+    FILENAME = "assets/towers/wall.png"
+    START_RANGE = 1
+    def __init__(self, *args, **kwargs):
+        super().__init__(filename=__class__.FILENAME, **kwargs)
